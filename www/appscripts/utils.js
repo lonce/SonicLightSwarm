@@ -45,6 +45,9 @@ define(
                 return String(nybHexString.substr((n >> 4) & 0x0F,1)) + nybHexString.substr(n & 0x0F,1);
             }
 
+            // d between 0 and 255
+            utils.d2h = function(d) { return (+d).toString(16).toUpperCase(); }
+
 
             utils.getRandomColor1 = function(rmin,rmax,gmin,gmax,bmin,bmax){
                 var r = rmin+ Math.round((rmax-rmin)*Math.random());
@@ -58,6 +61,10 @@ define(
                 var g = Math.round(255*Math.random());
                 var b = Math.round(255*Math.random());
                 return '#' + byte2Hex(r) + byte2Hex(g) + byte2Hex(b);
+            }
+
+            utils.distance = function(p1, p2){
+                return Math.sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y));
             }
 
 

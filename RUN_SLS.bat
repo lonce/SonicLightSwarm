@@ -1,3 +1,3 @@
-START /MIN /B CMD /C CALL "node" AntScoreServerForSynth.js 8020
-START "" "http://localhost:8020"
-echo "Hello from AnticiaptoryScore"
+START /MIN /B CMD /C CALL "node" SonicLightSwarm.js 8100
+START "" "http://localhost:8100"
+echo "Hello from SonicLightSwarm"

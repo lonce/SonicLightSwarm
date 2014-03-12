@@ -21,18 +21,19 @@ require.config({
 	}
 });
 require(
-	["require", "comm", "utils", "touch2Mouse", "canvasSlider", "soundbank",  "scoreEvents/scoreEvent",    "config", "userConfig"],
+	["require", "comm", "utils", "touch2Mouse", "canvasSlider", "soundbank",  "scoreEvents/scoreEvent", "tabs/pitchTab", "tabs/rhythmTab", "tabs/chordTab",  "tabs/textTab",   "tabs/selectTab", "agentPlayer", "config", "userConfig"],
 
-	function (require, comm, utils, touch2Mouse, canvasSlider, soundbank, scoreEvent,    config, userConfig) {
+	function (require, comm, utils, touch2Mouse, canvasSlider, soundbank, scoreEvent, pitchTabFactory, rhythmTabFactory, chordTabFactory, textTabFactory, selectTabFactory, agentPlayer, config, userConfig) {
 
 		var mouse_down=false;
 
-
-
+		var m_agent;
 		userConfig.report(function(){
 			if (userConfig.player === "agent"){
 				console.log("you will play with (or as) an agent");
-
+				m_agent=agentPlayer();
+			} else {
+				console.log("you are playing as a human");
 			}
 
 			// unsubscribe to previous room, join new room
@@ -58,14 +59,18 @@ require(
 		var colorIDMap=[]; // indexed by client ID
 		var current_remoteEvent=[]; // indexed by client ID
 
-
+		var g_selectModeP = false;
+		var m_selectedElement = undefined;
 
 		var m_lastDisplayTick=0;
 		var m_tickCount=0;
 		var k_timeDisplayElm=window.document.getElementById("timeDisplayDiv");
 
 		var current_mgesture=undefined;
-		var last_mousemove_event; // holds the last known position of the mouse over the canvas (easier than getting the position of a mouse that hasn't moved even though the score underneath it has....)
+		var last_mousemove_event={
+			"x":0,
+			"y":0
+		}; // holds the last known position of the mouse over the canvas (easier than getting the position of a mouse that hasn't moved even though the score underneath it has....)
 		var current_mgesture_2send=undefined; // used to send line segments being drawn before they are completed by mouse(finger) up. 
 
 		var lastSendTimeforCurrentEvent=0; 
@@ -78,28 +83,63 @@ require(
 		var radioSpray = window.document.getElementById("radioSpray"); 
 		var radioContour = window.document.getElementById("radioContour");
 		var radioText = window.document.getElementById("radioText");
+		var radioSelect = window.document.getElementById("radioSelectDuplicate");
+		var radioPitch = window.document.getElementById("radioPitch");
+		var radioRhythm = window.document.getElementById("radioRhythm");
+		var radioChord = window.document.getElementById("radioChord");
 
-
-
+		var yLockButton = window.document.getElementById("yLockButton");
 		var toggleYLockP=0;
 		var yLockVal;
+		yLockButton.style.background='#590000';
+
+		yLockButton.onclick=function(){
+			toggleYLockP=(toggleYLockP+1)%2;
+			if (toggleYLockP===0){
+				yLockButton.style.background='#590000';
+			} else {
+				yLockButton.style.background='#005900';
+			}
+		}
 
 
-
-
-
+		var timeLockButton = window.document.getElementById("timeLockButton");
 		var toggleTimeLockP=0;
+		timeLockButton.style.background='#590000';
 
+		timeLockButton.onclick=function(){
+			toggleTimeLockP=(toggleTimeLockP+1)%2;
+			if (toggleTimeLockP===0){
+				timeLockButton.style.background='#590000';
+			} else {
+				timeLockButton.style.background='#005900';
+			}
+		}
 
-
+		var timeLockSlider = window.document.getElementById("timeLockSlider");
 	
+
+		var toggleSoundButton = window.document.getElementById("soundToggleButton");
 		var toggleSoundState=1;
+		toggleSoundButton.style.background='#005900';
 
 
 
 		//initialize sound band
 		if(config.webkitAudioEnabled){
 				soundbank.create(toggleSoundState*12); // max polyphony 
+		}
+
+		toggleSoundButton.onclick=function(){
+			toggleSoundState=(toggleSoundState+1)%2;
+			if(config.webkitAudioEnabled){
+				soundbank.create(toggleSoundState*12); // max polyphony 
+			}
+			if (toggleSoundState===0){
+				toggleSoundButton.style.background='#590000';
+			} else {
+				toggleSoundButton.style.background='#005900';
+			}
 		}
 
 
@@ -130,21 +170,59 @@ require(
 			radioSelection = this.value;
 			setTab("contourTab");
 		};
+		radioText.onclick=function(){
+			radioSelection = this.value;
+			setTab("textTab");
+		};
 
+		radioSelect.onclick=function(){
+			radioSelection = this.value;
+			setTab("selectTab");
 
+		};
 
-
+		radioPitch.onclick=function(){
+			radioSelection = this.value;
+			setTab("pitchTab");
+		};
+		radioRhythm.onclick=function(){
+			radioSelection = this.value;
+			setTab("rhythmTab");
+		};
+		radioChord.onclick=function(){
+			radioSelection = this.value;
+			setTab("chordTab");
+		};
 
 		//radioContour.addEventListener("onclick", function(){console.log("radio Contour");});
 		var setTab=function(showTab){
 			window.document.getElementById("contourTab").style.display="none";
 			window.document.getElementById("sprayTab").style.display="none";
-
+			window.document.getElementById("textTab").style.display="none";
+			window.document.getElementById("pitchTab").style.display="none";
+			window.document.getElementById("rhythmTab").style.display="none";
+			window.document.getElementById("chordTab").style.display="none";
+			window.document.getElementById("selectTab").style.display="none";
 
 			window.document.getElementById(showTab).style.display="inline-block";
+			if (showTab === "selectTab"){
+				g_selectModeP=true;
+			} else{
+				g_selectModeP=false;
+				m_selectedElement = undefined;
 
+				for(dispElmt=displayElements.length-1;dispElmt>=0;dispElmt--){
+					displayElements[dispElmt].select(false);
+				}
+
+			}	
 		}
 
+		var m_pTab=pitchTabFactory();
+		var m_rTab=rhythmTabFactory();
+		var m_cTab=chordTabFactory();
+		var m_tTab=textTabFactory();
+		var m_sTab=selectTabFactory();
 
 		var k_sprayPeriod = 100;// ms between sprayed events
 		var m_lastSprayEvent = 0; // time (rel origin) of the last spray event (not where on the score, but when it happened. 
@@ -163,32 +241,44 @@ require(
 		//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of contGesture, and src is the id of the clicking client
 		comm.registerCallback('contGesture', function(data, src) {
+			current_remoteEvent[src].d = current_remoteEvent[src].d.concat(data);
 			if (data.length === 0) console.log("Got contour event with 0 length data!");
-
-			console.log("got continue gesture with data x=" + data.d[0][0] + ", and y=" + data.d[0][1]);
-			m_sls.x=data.d[0][0];
-			m_sls.y=data.d[0][1];
-	
+			current_remoteEvent[src].e=data[data.length-1][0];
 		});
 				//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
 		comm.registerCallback('beginGesture', function(data, src) {
 			var fname;
 
-			m_sls.x=data.d[0][0];
-			m_sls.y=data.d[0][1];
+			current_remoteEvent[src]=scoreEvent(data.type);
 
-			//console.log("got begin gesture with data x=" + data.d[0][0] + ", and y=" + data.d[0][1]);
+			// automatically fill any fields of the new scoreEvent sent
+			for (fname in data.fields){
+				current_remoteEvent[src][fname]=data.fields[fname];
+			}
 
+			// These are "derived" fields, so no need to send them with the message
+			current_remoteEvent[src].b=data.d[0][0];
+			current_remoteEvent[src].e=data.d[data.d.length-1][0];
+			current_remoteEvent[src].d=data.d;
+			current_remoteEvent[src].s=src;
+			current_remoteEvent[src].soundbank=soundbank;
+
+			displayElements.push(current_remoteEvent[src]);
+
+			if (data.cont && (data.cont===true)){
+				console.log("more data for this gesture will be expected");
+			} else {
+				console.log("received completed gesture, terminate the reception of data for this gesture");
+				current_remoteEvent[src]=undefined; // no more data coming
+			}
 		});
 
 
 		//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
 		comm.registerCallback('endGesture', function(data, src) {
-
-
-			console.log("got end gesture")
+			current_remoteEvent[src]=undefined; // no more data coming
 		});
 
 		//---------------------------------------------------------------------------
@@ -202,7 +292,7 @@ require(
 			console.log("server startTime = " + data[0] );
 
 			clearScore();
-
+			m_agent && m_agent.reset();
 			
 			timeOrigin=Date.now();
 			lastSendTimeforCurrentEvent= -Math.random()*sendCurrentEventInterval; // so time-synched clients don't all send their countour chunks at the same time. 
@@ -255,17 +345,23 @@ require(
 			trackY[i]=i*trackHeight;
 		}
 
-		var my_pos={
-			"x": theCanvas.width/2,
-			"y": theCanvas.height/2
-		}
+		numXcells=54;
+		numYcells=30;
+		cellSizeX=theCanvas.width/numXcells;
+		cellSizeY=theCanvas.height/numYcells;
 
-		var m_sls={
-			"onP": false,
-			"x": theCanvas.width/2,
-			"y": theCanvas.height/2
-		}
+		console.log("canvas width = "+ theCanvas.width + ", theCanvas.height = "+ theCanvas.height);
 
+		var m_cell=new Array(numXcells);
+		for(var i=0;i<numXcells;i++){
+			m_cell[i]=new Array(numYcells);
+			for(var j=0;j<numYcells;j++){
+				m_cell[i][j]={};
+				m_cell[i][j].x=(i*theCanvas.width)/numXcells;
+				m_cell[i][j].y=(j*theCanvas.height)/numYcells;
+				//console.log("cell["+i+"]["+j+"]  x="+m_cell[i][j].x + ", y="+m_cell[i][j].y);
+			}
+		}
 
 
 		var time2PxOLD=function(time, elapsedTime){ // time measured since timeOrigin
@@ -323,54 +419,43 @@ require(
 			context.strokeStyle=ss;
 		}
 
-		function drawPosition(x,y){
-			context.strokeStyle = "#00FF00";	
-			context.lineWidth =2;			
+		function drawCell(cell, b){
+			b=Math.max(0,1-b);
+			var hx=utils.d2h(Math.floor(255*b));
+			context.fillStyle = hx+"00"+hx;
 
-			context.beginPath();
-			context.moveTo(x-3, y-3);
-			context.lineTo(x+3, y+3);
-			context.moveTo(x-3, y+3);
-			context.lineTo(x+3, y-3);
-			context.stroke();
-
+			context.fillRect(cell.x,cell.y,b*cellSizeX,b*cellSizeY);
 		}
 
-
-function d2h(d) {
-  var hex = Number(d).toString(16);
-  hex = "00".substr(0, 2 - hex.length) + hex; 
-  return hex;
-}
 
 
 		function drawScreen(elapsedtime) {
 
 			context.clearRect(0, 0, 1*theCanvas.width, 1*theCanvas.height);
 
-
-			var ndistance = Math.sqrt((my_pos.x-m_sls.x)*(my_pos.x-m_sls.x) + (my_pos.y-m_sls.y)*(my_pos.y-m_sls.y))/theCanvas.width;
-			
-			var ndistance=utils.distance(my_pos, m_sls)/theCanvas.width; // can still be > 1
-
-			var brightness=Math.floor(255*(1-Math.min(1,ndistance)));
-			//console.log("brightness is " + brightness);
-
-			var hx=d2h(brightness);
-			context.fillStyle = hx+hx+hx;
-
-			//console.log("distance = " + ndistance + ", brightness = " + brightness+ ", and hex = " + context.fillStyle);
-			context.fillRect(0,0,theCanvas.width,theCanvas.height);
-
-			drawPosition(my_pos.x, my_pos.y);
-
-
-
-			/*
-			if (mouse_down){
-				explosion(last_mousemove_event.x, last_mousemove_event.y, 4, "white", 6, "red");
+			var center=last_mousemove_event;
+			if (m_agent != undefined){		
+				center.x=Math.floor(theCanvas.width*(1+m_agent.x)/2);
+				center.y=Math.floor(theCanvas.height*(1+m_agent.y)/2);
+				//console.log("center.x="+center.x + ", center.y="+center.y);
 			}
-			*/
+
+			comm.sendJSONmsg("beginGesture", {"d":[[center.x,center.y,0]], "type": "mouseContourGesture", "cont": true});
+
+
+			for (var i=0;i<numXcells;i++){
+				for (var j=0;j<numYcells;j++){
+					d=utils.distance(center,m_cell[i][j]);
+					drawCell(m_cell[i][j], d/theCanvas.width);
+				}
+			}
+
+
+			//console.log("draw at " + elapsedtime);
+			//if (mouse_down){
+				//explosion(last_mousemove_event.x, last_mousemove_event.y, 4, "white", 6, "red");
+			//}
+
 
 			lastDrawTime=elapsedtime;
 
@@ -418,30 +503,31 @@ function d2h(d) {
 			event.preventDefault();
 			var m = utils.getCanvasMousePosition(theCanvas, e);
 
+			console.log("mouse down, x= " + m.x + ", y=", + m.y);
 
-			my_pos.x=m.x;
-			my_pos.y=m.y;
-
+			last_mousemove_event=m;
 			mouse_down=true;
+
+
+			//comm.sendJSONmsg("beginGesture", {"d":[[m.x,m.y,0]], "type": "mouseContourGesture", "cont": true});
+
 
 		}
 
 		function onMouseUp(e){
 			var m = utils.getCanvasMousePosition(theCanvas, e);
-			my_pos.x=m.x;
-			my_pos.y=m.y;
 			mouse_down=false;
+			comm.sendJSONmsg("endGesture", []);
 
 		}
 
 		function onMouseMove(e){
-			var m = utils.getCanvasMousePosition(theCanvas, e);
 			if (mouse_down){
-				my_pos.x=m.x;
-				my_pos.y=m.y;
-			}
-			last_mousemove_event=m;
+				last_mousemove_event=utils.getCanvasMousePosition(theCanvas, e);
+				var m = last_mousemove_event;
 
+				comm.sendJSONmsg("contGesture", {"d":[[m.x,m.y,0]]});
+			}
 		}
 
 
@@ -455,7 +541,7 @@ function d2h(d) {
 			
 			drawScreen(t_sinceOrigin);
 
-
+			m_agent && m_agent.tick(t_sinceOrigin/1000.0);
 
 			// create a display clock tick every 1000 ms
 			while ((t_sinceOrigin-m_lastDisplayTick)>1000){  // can tick more than once if computer went to sleep for a while...

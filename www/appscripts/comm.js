@@ -36,6 +36,10 @@ define(
 
 		// For sending local client events to the server
 		var sendJSONmsg = function (name, data) {
+			if (!(ws.readyState===1)){
+				console.log("still waiting for connection");
+				return;
+			}
 			ws.send(JSON.stringify({n: name, d: data}));//, {mask: true});
 		};
 
