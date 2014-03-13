@@ -21,19 +21,23 @@ require.config({
 	}
 });
 require(
-	["require", "comm", "utils", "touch2Mouse", "canvasSlider", "soundbank",  "scoreEvents/scoreEvent",    "config", "userConfig"],
+	["require", "comm", "utils", "touch2Mouse", "canvasSlider", "soundbank",  "scoreEvents/scoreEvent",  "slsPlayer/soundPlayer", "config", "userConfig"],
 
-	function (require, comm, utils, touch2Mouse, canvasSlider, soundbank, scoreEvent,    config, userConfig) {
+	function (require, comm, utils, touch2Mouse, canvasSlider, soundbank, scoreEvent,  soundPlayer,  config, userConfig) {
 
 		var mouse_down=false;
 
 
+		m_soundPlayer = soundPlayer();
+		m_soundPlayer.init(250, 1.6);
 
 		userConfig.report(function(){
 			if (userConfig.player === "agent"){
 				console.log("you will play with (or as) an agent");
 
 			}
+
+			m_soundPlayer.start();
 
 			// unsubscribe to previous room, join new room
 			if (myRoom != undefined) comm.sendJSONmsg("unsubscribe", [myRoom]);
@@ -45,6 +49,7 @@ require(
 				comm.sendJSONmsg("startTime", []);
 			} 
 		});
+
 
 
         var myrequestAnimationFrame = utils.getRequestAnimationFrameFunc();
@@ -352,6 +357,8 @@ function d2h(d) {
 			var ndistance = Math.sqrt((my_pos.x-m_sls.x)*(my_pos.x-m_sls.x) + (my_pos.y-m_sls.y)*(my_pos.y-m_sls.y))/theCanvas.width;
 			
 			var ndistance=utils.distance(my_pos, m_sls)/theCanvas.width; // can still be > 1
+
+			m_soundPlayer.tick(elapsedtime,ndistance);
 
 			var brightness=Math.floor(255*(1-Math.min(1,ndistance)));
 			//console.log("brightness is " + brightness);
