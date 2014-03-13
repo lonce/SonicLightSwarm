@@ -214,12 +214,16 @@ require(
 			serverTimeOrigin=data[0];
 			m_lastDisplayTick=0;
 			displayElements=[];		
+
+			m_soundPlayer.init(250, 1.6); // because time gets reset
 		});
 		//---------------------------------------------------------------------------
 		// Just make a color for displaying future events from the client with the src ID
 		comm.registerCallback('newmember', function(data, src) {
 			console.log("new member : " + src);
 			colorIDMap[src]=utils.getRandomColor1(100,255,0,120,100,255);
+
+
 		});
 		//---------------------------------------------------------------------------
 		// src is meaningless since it is this client

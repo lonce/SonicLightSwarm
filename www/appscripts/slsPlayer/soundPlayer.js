@@ -30,6 +30,7 @@ define(
                m_interval.avg=i_avg;
                m_interval.min=i_avg/i_spreadFactor;
                m_interval.max=i_avg*i_spreadFactor;
+               m_interval.nextTime=0;
             }
          }
 
