@@ -223,7 +223,7 @@ require(
 			console.log("new member : " + src);
 			colorIDMap[src]=utils.getRandomColor1(100,255,0,120,100,255);
 
-
+			m_soundPlayer.init(250, 1.6);
 		});
 		//---------------------------------------------------------------------------
 		// src is meaningless since it is this client
