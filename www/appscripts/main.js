@@ -27,6 +27,10 @@ require(
 
 		var mouse_down=false;
 
+		var k_soundFlag=false;
+		        var latitude=0;
+		        var longitude=0;
+		        var accuracy=0;
 
 		m_soundPlayer = soundPlayer();
 		m_soundPlayer.init(250, 1.6);
@@ -37,7 +41,20 @@ require(
 
 			}
 
-			m_soundPlayer.start();
+			if (k_soundFlag === true){
+				m_soundPlayer.start();
+			}
+
+			if (navigator.geolocation.watchPosition(function(position){
+		        latitude = position.coords.latitude;
+		        longitude = position.coords.longitude;
+		        accuracy = position.coords.accuracy;
+
+         		var capa = document.getElementById("footer");
+         		capa.innerHTML = "latitud: " + latitude + " longitud: " + longitude + "   precisio en metres  :  " + accuracy;  
+
+			}));
+
 
 			// unsubscribe to previous room, join new room
 			if (myRoom != undefined) comm.sendJSONmsg("unsubscribe", [myRoom]);
@@ -48,7 +65,8 @@ require(
 				// Tell everybody in the room to restart their timers.
 				comm.sendJSONmsg("startTime", []);
 			} 
-		});
+		}, {maximumAge:600000, timeout:5000, enableHighAccuracy: false}
+		);
 
 
 
@@ -356,6 +374,8 @@ function d2h(d) {
 		function drawScreen(elapsedtime) {
 
 			context.clearRect(0, 0, 1*theCanvas.width, 1*theCanvas.height);
+         		var capa = document.getElementById("footer");
+         		capa.innerHTML = "latitud: " + latitude + " longitud: " + longitude + "   precisio en metres  :  " + accuracy;  
 
 
 			var ndistance = Math.sqrt((my_pos.x-m_sls.x)*(my_pos.x-m_sls.x) + (my_pos.y-m_sls.y)*(my_pos.y-m_sls.y))/theCanvas.width;

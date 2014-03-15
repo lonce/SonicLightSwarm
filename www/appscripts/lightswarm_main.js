@@ -21,9 +21,9 @@ require.config({
 	}
 });
 require(
-	["require", "comm", "utils", "touch2Mouse", "canvasSlider", "soundbank",  "scoreEvents/scoreEvent", "tabs/pitchTab", "tabs/rhythmTab", "tabs/chordTab",  "tabs/textTab",   "tabs/selectTab", "agentPlayer", "config", "userConfig"],
+	["require", "comm", "utils", "touch2Mouse",  "soundbank",  "scoreEvents/scoreEvent",  "agentPlayer", "config", "userConfig"],
 
-	function (require, comm, utils, touch2Mouse, canvasSlider, soundbank, scoreEvent, pitchTabFactory, rhythmTabFactory, chordTabFactory, textTabFactory, selectTabFactory, agentPlayer, config, userConfig) {
+	function (require, comm, utils, touch2Mouse,  soundbank, scoreEvent,  agentPlayer, config, userConfig) {
 
 		var mouse_down=false;
 
@@ -79,150 +79,9 @@ require(
 		var k_minLineThickness=1;
 		var k_maxLineThickness=16; // actually, max will be k_minLineThickness + k_maxLineThickness
 
-		var leftSlider = canvasSlider(window,"slidercanvas1");
-		var radioSpray = window.document.getElementById("radioSpray"); 
-		var radioContour = window.document.getElementById("radioContour");
-		var radioText = window.document.getElementById("radioText");
-		var radioSelect = window.document.getElementById("radioSelectDuplicate");
-		var radioPitch = window.document.getElementById("radioPitch");
-		var radioRhythm = window.document.getElementById("radioRhythm");
-		var radioChord = window.document.getElementById("radioChord");
-
-		var yLockButton = window.document.getElementById("yLockButton");
-		var toggleYLockP=0;
-		var yLockVal;
-		yLockButton.style.background='#590000';
-
-		yLockButton.onclick=function(){
-			toggleYLockP=(toggleYLockP+1)%2;
-			if (toggleYLockP===0){
-				yLockButton.style.background='#590000';
-			} else {
-				yLockButton.style.background='#005900';
-			}
-		}
-
-
-		var timeLockButton = window.document.getElementById("timeLockButton");
-		var toggleTimeLockP=0;
-		timeLockButton.style.background='#590000';
-
-		timeLockButton.onclick=function(){
-			toggleTimeLockP=(toggleTimeLockP+1)%2;
-			if (toggleTimeLockP===0){
-				timeLockButton.style.background='#590000';
-			} else {
-				timeLockButton.style.background='#005900';
-			}
-		}
-
-		var timeLockSlider = window.document.getElementById("timeLockSlider");
-	
-
-		var toggleSoundButton = window.document.getElementById("soundToggleButton");
-		var toggleSoundState=1;
-		toggleSoundButton.style.background='#005900';
 
 
 
-		//initialize sound band
-		if(config.webkitAudioEnabled){
-				soundbank.create(toggleSoundState*12); // max polyphony 
-		}
-
-		toggleSoundButton.onclick=function(){
-			toggleSoundState=(toggleSoundState+1)%2;
-			if(config.webkitAudioEnabled){
-				soundbank.create(toggleSoundState*12); // max polyphony 
-			}
-			if (toggleSoundState===0){
-				toggleSoundButton.style.background='#590000';
-			} else {
-				toggleSoundButton.style.background='#005900';
-			}
-		}
-
-
-		var radioSelection = "contour"; // by default
-
-		window.addEventListener("keydown", keyDown, true);
-
-		function keyDown(e){
-         		var keyCode = e.keyCode;
-         		switch(keyCode){
-         			case 83:
-         				if (e.ctrlKey==1){
-         					//alert("control s was pressed");
-         					e.preventDefault();
-         					if(config.webkitAudioEnabled){
-								soundbank.create(12); // max polyphony 
-							}
-							
-         				}
-				}
-		}
-
-		radioSpray.onclick=function(){
-			radioSelection = this.value;
-			setTab("sprayTab");
-		};
-		radioContour.onclick=function(){
-			radioSelection = this.value;
-			setTab("contourTab");
-		};
-		radioText.onclick=function(){
-			radioSelection = this.value;
-			setTab("textTab");
-		};
-
-		radioSelect.onclick=function(){
-			radioSelection = this.value;
-			setTab("selectTab");
-
-		};
-
-		radioPitch.onclick=function(){
-			radioSelection = this.value;
-			setTab("pitchTab");
-		};
-		radioRhythm.onclick=function(){
-			radioSelection = this.value;
-			setTab("rhythmTab");
-		};
-		radioChord.onclick=function(){
-			radioSelection = this.value;
-			setTab("chordTab");
-		};
-
-		//radioContour.addEventListener("onclick", function(){console.log("radio Contour");});
-		var setTab=function(showTab){
-			window.document.getElementById("contourTab").style.display="none";
-			window.document.getElementById("sprayTab").style.display="none";
-			window.document.getElementById("textTab").style.display="none";
-			window.document.getElementById("pitchTab").style.display="none";
-			window.document.getElementById("rhythmTab").style.display="none";
-			window.document.getElementById("chordTab").style.display="none";
-			window.document.getElementById("selectTab").style.display="none";
-
-			window.document.getElementById(showTab).style.display="inline-block";
-			if (showTab === "selectTab"){
-				g_selectModeP=true;
-			} else{
-				g_selectModeP=false;
-				m_selectedElement = undefined;
-
-				for(dispElmt=displayElements.length-1;dispElmt>=0;dispElmt--){
-					displayElements[dispElmt].select(false);
-				}
-
-			}	
-		}
-
-		var m_pTab=pitchTabFactory();
-		var m_rTab=rhythmTabFactory();
-		var m_cTab=chordTabFactory();
-		var m_tTab=textTabFactory();
-		var m_sTab=selectTabFactory();
 
 		var k_sprayPeriod = 100;// ms between sprayed events
 		var m_lastSprayEvent = 0; // time (rel origin) of the last spray event (not where on the score, but when it happened. 
@@ -428,6 +287,7 @@ require(
 		}
 
 
+		var deg = 0;
 
 		function drawScreen(elapsedtime) {
 
@@ -456,6 +316,13 @@ require(
 				//explosion(last_mousemove_event.x, last_mousemove_event.y, 4, "white", 6, "red");
 			//}
 
+			context.save();
+			deg %= 360;
+			context.translate(100,0);
+			context.rotate(deg * Math.PI / 180);
+			context.fillRect(-37.5, -25, 75, 50);
+			context.restore();
+			deg++;
 
 			lastDrawTime=elapsedtime;
 
@@ -597,9 +464,8 @@ require(
 			} 
    		 })
 */
-		// INITIALIZATIONS --------------------
-		radioContour.checked=true; // initialize
-		setTab("contourTab");
+
+
 
 	}
 );
