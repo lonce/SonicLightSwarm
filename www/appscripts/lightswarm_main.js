@@ -310,11 +310,7 @@ require(
 				}
 			}
 
-
-			//console.log("draw at " + elapsedtime);
-			//if (mouse_down){
-				//explosion(last_mousemove_event.x, last_mousemove_event.y, 4, "white", 6, "red");
-			//}
+/*
 
 			context.save();
 			deg %= 360;
@@ -323,7 +319,7 @@ require(
 			context.fillRect(-37.5, -25, 75, 50);
 			context.restore();
 			deg++;
-
+*/
 			lastDrawTime=elapsedtime;
 
 		}

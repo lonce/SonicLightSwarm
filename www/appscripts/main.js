@@ -27,7 +27,7 @@ require(
 
 		var mouse_down=false;
 
-		var k_soundFlag=false;
+		var k_soundFlag=true;
 		        var latitude=0;
 		        var longitude=0;
 		        var accuracy=0;
@@ -51,7 +51,7 @@ require(
 		        accuracy = position.coords.accuracy;
 
          		var capa = document.getElementById("footer");
-         		capa.innerHTML = "latitud: " + latitude + " longitud: " + longitude + "   precisio en metres  :  " + accuracy;  
+         		capa.innerHTML = "latitude: " + latitude + " longitude: " + longitude + "   precision  :  " + accuracy;  
 
 			}));
 
