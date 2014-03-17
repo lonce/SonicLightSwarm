@@ -45,6 +45,7 @@ require(
 				m_soundPlayer.start();
 			}
 
+/*
 			if (navigator.geolocation.watchPosition(function(position){
 		        latitude = position.coords.latitude;
 		        longitude = position.coords.longitude;
@@ -54,7 +55,7 @@ require(
          		capa.innerHTML = "latitude: " + latitude + " longitude: " + longitude + "   precision  :  " + accuracy;  
 
 			}));
-
+*/
 
 			// unsubscribe to previous room, join new room
 			if (myRoom != undefined) comm.sendJSONmsg("unsubscribe", [myRoom]);
