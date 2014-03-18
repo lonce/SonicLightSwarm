@@ -42,7 +42,7 @@ require(
 
 			}
 			*/
-
+ 
 
 /*
 			if (navigator.geolocation.watchPosition(function(position){

@@ -2,7 +2,7 @@ define(
 	["soundbank", "config"],
 	function (soundbank, config, genericScoreEvent) {
       return function (){
-
+ 
          var m_player={};
          
          m_player.playingP=false;
