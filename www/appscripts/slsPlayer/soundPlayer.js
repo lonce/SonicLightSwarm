@@ -47,6 +47,14 @@ define(
             if (! m_player.playingP) return;
 
             if (tso > m_interval.nextTime){
+                     m_player.playonenote(ndistance);
+                     m_interval.tick(tso);
+
+
+            }
+      };
+
+      m_player.playonenote=function(ndistance){
                      this.snd=soundbank.getSnd();
                      this.snd && this.snd.setParamNorm("Carrier Frequency", .8 + .3*Math.random());
                      this.snd && this.snd.setParamNorm("Modulation Index", .02 + .06*Math.random());
@@ -56,11 +64,7 @@ define(
                      this.snd && this.snd.qrelease(config.minSndDuration);
                      this.snd && soundbank.releaseSnd(this.snd);     
 
-                     m_interval.tick(tso);
-
-
-            }
-      };
+      }
 
       return m_player;
    }

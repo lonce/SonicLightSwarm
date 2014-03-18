@@ -43,9 +43,6 @@ require(
 			}
 			*/
 
-			if (k_soundFlag === true){
-				m_soundPlayer.start();
-			}
 
 /*
 			if (navigator.geolocation.watchPosition(function(position){
@@ -456,6 +453,10 @@ function d2h(d) {
 			my_pos.y=m.y;
 
 			mouse_down=true;
+
+			if (k_soundFlag === true){
+				m_soundPlayer.start();
+			}
 
 		}
 
