@@ -12,6 +12,10 @@ define(
             m_player.playingP=true;
          }
 
+         m_player.stop=function(){
+            m_player.playingP=false;
+         }
+
          var m_interval = {
             "avg":1000, //ms
             "spreadFactor":1.2,

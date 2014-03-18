@@ -547,8 +547,13 @@ function d2h(d) {
    		 })
 */
 		// INITIALIZATIONS --------------------
-		radioContour.checked=true; // initialize
-		setTab("contourTab");
+		//radioContour.checked=true; // initialize
+		//setTab("contourTab");
+
+		window.onbeforeunload = function (e) {
+			m_soundPlayer.stop();
+			if (myRoom != undefined) comm.sendJSONmsg("unsubscribe", [myRoom]);
+		}
 
 	}
 );
