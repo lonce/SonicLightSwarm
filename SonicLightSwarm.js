@@ -30,8 +30,10 @@ registerCallback('startTime', startTime);
 // Note: for all functions used as callbacks, "this" will be a socket passed to the .call()
 function subscribe(rm) {
     this.room = rm;
-    if (rooms[rm] === undefined)
+    if (rooms[rm] === undefined){
+        console.log("creating rm " + rm);
         rooms[rm] = [this];
+    }
     else
         rooms[rm].push(this);
 
@@ -53,12 +55,19 @@ function subscribe(rm) {
 function unsubscribe(rm) {
     var ws = this;
     if (rm != ''){
-        console.log("about to remove from rm " + rm)
+        console.log("At time="  + Date.now() + ", about to remove from rm " + rm + "with " + rooms[rm].length + " members");
         rooms[rm] = rooms[rm].filter(function (s) {return s !== ws;});
+        if (rooms[rm].length===0){
+            console.log("deleting room " + rm);
+            delete rooms[rm];
+        }
         room = '';
+
         console.log(ws.id + " is gone..." );
     }
 }
+
+
 
 // basic data exchange method for responding to one socket, sending to rest
 function contGesture(data) {
@@ -87,6 +96,7 @@ function startTime() {
 function roomBroadcast(room, sender, name, data) {
     if (rooms[room] === undefined)
         return;
+
     var src = sender ? sender.id : 0;
     //if (sender !== null) console.log(name, 'from', src);
     rooms[room].forEach(function (ws) {if (ws !== sender) {sendJSONmsg(ws, name, data, src);}});
@@ -134,7 +144,7 @@ console.log("Connected and listening on port " + k_portnum);
 
 wss.on('connection', function (ws) {
     ws.id = id++;
-    console.log("got a connection, assigning ID = " + ws.id);
+    console.log("got a connection at time " + Date.now() + ", assigning ID = " + ws.id);
     ws.on('message', receiveJSONmsg.bind(ws));
     ws.room = '';
     sendJSONmsg(ws, 'init', [ws.id, Date.now()]);
@@ -143,6 +153,25 @@ wss.on('connection', function (ws) {
     ws.on('close', function() {        
         callbacks['unsubscribe'].call(ws, ws.room);
     });
+});
+
+function getRoomList(){
+    rlist=[];
+    for (r in rooms){
+        if (r==='') continue;
+        if(rooms.hasOwnProperty(r)){
+            rlist.push(r);
+        }
+    }
+    console.log("getRoomList: " + rlist);
+    return rlist;
+}
+
+app.get(["/soundList", "/soundList/ModelDescriptors"],function(req, res){
+  var jsonObj;
+  var jsonList=[];
+  console.log("fetching from ModelDescriptors");
+  res.send({"jsonItems":   getRoomList()  }); // returns an array of room names
 });
 
 exports.server = server;

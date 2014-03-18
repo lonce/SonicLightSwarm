@@ -3,9 +3,9 @@
   <head>
      <link rel="stylesheet" type="text/css" href="css/clientblockstyle.css">
      <link rel="stylesheet" type="text/css" href="css/appstyle.css">      
-     <link rel="stylesheet" type="text/css" href="css/userConfig.css">  
+     <link rel="stylesheet" type="text/css" href="css/configDialog.css">  
      <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,user-scalable=no">   
-     <script type="text/javascript" data-main="appscripts/main.js" src="jslibs/require.js"></script>
+     <script type="text/javascript" data-main="appscripts/client_main.js" src="jslibs/require.js"></script>
 
   </head>
 <body>
@@ -16,7 +16,7 @@
         <div id="block0a">
         </div>
         <div id="block0b">
-		  <h3 style="margin-bottom:0; ">Sonic Pixel</h3>
+		  <h3 style="margin-bottom:0; ">Personal Pixel</h3>
         </div>
         <div id="block0c" >
                 <span id="timeLabelDiv" >
@@ -29,13 +29,13 @@
 	</div>
 
     <div id="block1">
-        <div id="block1a">
+        <div id="block1a" hidden>
                         <canvas id="slidercanvas1"></canvas>
         </div>
         <div id="block1b">
         	            <canvas id="score"></canvas>
         </div>
-        <div id="block1c">
+        <div id="block1c" hidden>
                      <div > 
                         <div id="radioSelectDiv">
                            Input type:<br>
@@ -74,13 +74,8 @@
         <div class="clear"></div>
     </div>
 
-	<div id="footer" >
-	        <a href="http://anclab.org">Arts and Creativity Lab, IDMI</a> / <a href="http://www.fas.nus.edu.sg/cnm/">Communications and New Media Department, National University of Singapore</a><br> 
-        <b>Also see:</b> <a href="https://github.com/lonce/jsaSound"> https://github.com/lonce/jsaSound</a> <br />
-        <b>Tested with Chrome and Safari on Macs, PCs, Andoird, tablets, and phones. <br />
-        <b>Lonce Wyse</b>
-
-	</div>
+    <div id="instructions"> Position the "x" to identify the location of your personal pixel within the lightSwarm.
+    </div>
 
 </div>
 

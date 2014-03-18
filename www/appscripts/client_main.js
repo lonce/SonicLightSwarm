@@ -21,31 +21,56 @@ require.config({
 	}
 });
 require(
-	["require", "comm", "utils", "touch2Mouse",  "soundbank",  "scoreEvents/scoreEvent",  "agentPlayer", "config", "lightswarmConfig"],
+	["require", "comm", "utils", "touch2Mouse",  "soundbank",  "scoreEvents/scoreEvent",  "slsPlayer/soundPlayer", "config", "clientConfig"],
 
-	function (require, comm, utils, touch2Mouse,  soundbank, scoreEvent,  agentPlayer, config, lightswarmConfig) {
+	function (require, comm, utils, touch2Mouse,  soundbank, scoreEvent,  soundPlayer,  config, clientConfig) {
 
 		var mouse_down=false;
 
-		var m_agent;
-		lightswarmConfig.report(function(){
-			if (lightswarmConfig.player === "agent"){
+		var k_soundFlag=true;
+		        var latitude=0;
+		        var longitude=0;
+		        var accuracy=0;
+
+		m_soundPlayer = soundPlayer();
+		m_soundPlayer.init(250, 1.6);
+
+		clientConfig.report(function(){
+			/*
+			if (clientConfig.player === "agent"){
 				console.log("you will play with (or as) an agent");
-				m_agent=agentPlayer();
-			} else {
-				console.log("you are playing as a human");
+
 			}
+			*/
+
+			if (k_soundFlag === true){
+				m_soundPlayer.start();
+			}
+
+/*
+			if (navigator.geolocation.watchPosition(function(position){
+		        latitude = position.coords.latitude;
+		        longitude = position.coords.longitude;
+		        accuracy = position.coords.accuracy;
+
+         		var capa = document.getElementById("footer");
+         		capa.innerHTML = "latitude: " + latitude + " longitude: " + longitude + "   precision  :  " + accuracy;  
+
+			}));
+*/
 
 			// unsubscribe to previous room, join new room
 			if (myRoom != undefined) comm.sendJSONmsg("unsubscribe", [myRoom]);
-    		myRoom  = lightswarmConfig.room;
+    		myRoom  = clientConfig.room;
 			if (myRoom != undefined) {
-				console.log("lightswarmConfig.report: joing a room named " + myRoom); 
+				console.log("clientConfig.report: joing a room named " + myRoom); 
 				comm.sendJSONmsg("subscribe", [myRoom]);
 				// Tell everybody in the room to restart their timers.
 				comm.sendJSONmsg("startTime", []);
 			} 
-		});
+		}, {maximumAge:600000, timeout:5000, enableHighAccuracy: false}
+		);
+
 
 
         var myrequestAnimationFrame = utils.getRequestAnimationFrameFunc();
@@ -59,18 +84,14 @@ require(
 		var colorIDMap=[]; // indexed by client ID
 		var current_remoteEvent=[]; // indexed by client ID
 
-		var g_selectModeP = false;
-		var m_selectedElement = undefined;
+
 
 		var m_lastDisplayTick=0;
 		var m_tickCount=0;
 		var k_timeDisplayElm=window.document.getElementById("timeDisplayDiv");
 
 		var current_mgesture=undefined;
-		var last_mousemove_event={
-			"x":0,
-			"y":0
-		}; // holds the last known position of the mouse over the canvas (easier than getting the position of a mouse that hasn't moved even though the score underneath it has....)
+		var last_mousemove_event; // holds the last known position of the mouse over the canvas (easier than getting the position of a mouse that hasn't moved even though the score underneath it has....)
 		var current_mgesture_2send=undefined; // used to send line segments being drawn before they are completed by mouse(finger) up. 
 
 		var lastSendTimeforCurrentEvent=0; 
@@ -79,8 +100,75 @@ require(
 		var k_minLineThickness=1;
 		var k_maxLineThickness=16; // actually, max will be k_minLineThickness + k_maxLineThickness
 
+		var radioSpray = window.document.getElementById("radioSpray"); 
+		var radioContour = window.document.getElementById("radioContour");
+		var radioText = window.document.getElementById("radioText");
 
 
+
+		var toggleYLockP=0;
+		var yLockVal;
+
+
+
+
+
+		var toggleTimeLockP=0;
+
+
+
+	
+		var toggleSoundState=1;
+
+
+
+		//initialize sound band
+		if(config.webkitAudioEnabled){
+				soundbank.create(toggleSoundState*12); // max polyphony 
+		}
+
+
+		var radioSelection = "contour"; // by default
+
+		window.addEventListener("keydown", keyDown, true);
+
+		function keyDown(e){
+         		var keyCode = e.keyCode;
+         		switch(keyCode){
+         			case 83:
+         				if (e.ctrlKey==1){
+         					//alert("control s was pressed");
+         					e.preventDefault();
+         					if(config.webkitAudioEnabled){
+								soundbank.create(12); // max polyphony 
+							}
+							
+         				}
+				}
+		}
+
+		radioSpray.onclick=function(){
+			radioSelection = this.value;
+			setTab("sprayTab");
+		};
+		radioContour.onclick=function(){
+			radioSelection = this.value;
+			setTab("contourTab");
+		};
+
+
+
+
+
+		//radioContour.addEventListener("onclick", function(){console.log("radio Contour");});
+		var setTab=function(showTab){
+			window.document.getElementById("contourTab").style.display="none";
+			window.document.getElementById("sprayTab").style.display="none";
+
+
+			window.document.getElementById(showTab).style.display="inline-block";
+
+		}
 
 
 		var k_sprayPeriod = 100;// ms between sprayed events
@@ -100,44 +188,32 @@ require(
 		//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of contGesture, and src is the id of the clicking client
 		comm.registerCallback('contGesture', function(data, src) {
-			current_remoteEvent[src].d = current_remoteEvent[src].d.concat(data);
 			if (data.length === 0) console.log("Got contour event with 0 length data!");
-			current_remoteEvent[src].e=data[data.length-1][0];
+
+			console.log("got continue gesture with data x=" + data.d[0][0] + ", and y=" + data.d[0][1]);
+			m_sls.x=data.d[0][0];
+			m_sls.y=data.d[0][1];
+	
 		});
 				//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
 		comm.registerCallback('beginGesture', function(data, src) {
 			var fname;
 
-			current_remoteEvent[src]=scoreEvent(data.type);
+			m_sls.x=data.d[0][0];
+			m_sls.y=data.d[0][1];
 
-			// automatically fill any fields of the new scoreEvent sent
-			for (fname in data.fields){
-				current_remoteEvent[src][fname]=data.fields[fname];
-			}
+			//console.log("got begin gesture with data x=" + data.d[0][0] + ", and y=" + data.d[0][1]);
 
-			// These are "derived" fields, so no need to send them with the message
-			current_remoteEvent[src].b=data.d[0][0];
-			current_remoteEvent[src].e=data.d[data.d.length-1][0];
-			current_remoteEvent[src].d=data.d;
-			current_remoteEvent[src].s=src;
-			current_remoteEvent[src].soundbank=soundbank;
-
-			displayElements.push(current_remoteEvent[src]);
-
-			if (data.cont && (data.cont===true)){
-				console.log("more data for this gesture will be expected");
-			} else {
-				console.log("received completed gesture, terminate the reception of data for this gesture");
-				current_remoteEvent[src]=undefined; // no more data coming
-			}
 		});
 
 
 		//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
 		comm.registerCallback('endGesture', function(data, src) {
-			current_remoteEvent[src]=undefined; // no more data coming
+
+
+			console.log("got end gesture")
 		});
 
 		//---------------------------------------------------------------------------
@@ -151,19 +227,23 @@ require(
 			console.log("server startTime = " + data[0] );
 
 			clearScore();
-			m_agent && m_agent.reset();
+
 			
 			timeOrigin=Date.now();
 			lastSendTimeforCurrentEvent= -Math.random()*sendCurrentEventInterval; // so time-synched clients don't all send their countour chunks at the same time. 
 			serverTimeOrigin=data[0];
 			m_lastDisplayTick=0;
 			displayElements=[];		
+
+			m_soundPlayer.init(250, 1.6); // because time gets reset
 		});
 		//---------------------------------------------------------------------------
 		// Just make a color for displaying future events from the client with the src ID
 		comm.registerCallback('newmember', function(data, src) {
 			console.log("new member : " + src);
 			colorIDMap[src]=utils.getRandomColor1(100,255,0,120,100,255);
+
+			m_soundPlayer.init(250, 1.6);
 		});
 		//---------------------------------------------------------------------------
 		// src is meaningless since it is this client
@@ -204,23 +284,17 @@ require(
 			trackY[i]=i*trackHeight;
 		}
 
-		numXcells=54;
-		numYcells=30;
-		cellSizeX=theCanvas.width/numXcells;
-		cellSizeY=theCanvas.height/numYcells;
-
-		console.log("canvas width = "+ theCanvas.width + ", theCanvas.height = "+ theCanvas.height);
-
-		var m_cell=new Array(numXcells);
-		for(var i=0;i<numXcells;i++){
-			m_cell[i]=new Array(numYcells);
-			for(var j=0;j<numYcells;j++){
-				m_cell[i][j]={};
-				m_cell[i][j].x=(i*theCanvas.width)/numXcells;
-				m_cell[i][j].y=(j*theCanvas.height)/numYcells;
-				//console.log("cell["+i+"]["+j+"]  x="+m_cell[i][j].x + ", y="+m_cell[i][j].y);
-			}
+		var my_pos={
+			"x": theCanvas.width/2,
+			"y": theCanvas.height/2
 		}
+
+		var m_sls={
+			"onP": false,
+			"x": theCanvas.width/2,
+			"y": theCanvas.height/2
+		}
+
 
 
 		var time2PxOLD=function(time, elapsedTime){ // time measured since timeOrigin
@@ -278,48 +352,59 @@ require(
 			context.strokeStyle=ss;
 		}
 
-		function drawCell(cell, b){
-			b=Math.max(0,1-b);
-			var hx=utils.d2h(Math.floor(255*b));
-			context.fillStyle = hx+"00"+hx;
+		function drawPosition(x,y){
+			context.strokeStyle = "#00FF00";	
+			context.lineWidth =2;			
 
-			context.fillRect(cell.x,cell.y,b*cellSizeX,b*cellSizeY);
+			context.beginPath();
+			context.moveTo(x-3, y-3);
+			context.lineTo(x+3, y+3);
+			context.moveTo(x-3, y+3);
+			context.lineTo(x+3, y-3);
+			context.stroke();
+
 		}
 
 
-		var deg = 0;
+function d2h(d) {
+  var hex = Number(d).toString(16);
+  hex = "00".substr(0, 2 - hex.length) + hex; 
+  return hex;
+}
+
 
 		function drawScreen(elapsedtime) {
 
 			context.clearRect(0, 0, 1*theCanvas.width, 1*theCanvas.height);
+         		//var capa = document.getElementById("footer");
+         		//capa.innerHTML = "latitud: " + latitude + " longitud: " + longitude + "   precisio en metres  :  " + accuracy;  
 
-			var center=last_mousemove_event;
-			if (m_agent != undefined){		
-				center.x=Math.floor(theCanvas.width*(1+m_agent.x)/2);
-				center.y=Math.floor(theCanvas.height*(1+m_agent.y)/2);
-				//console.log("center.x="+center.x + ", center.y="+center.y);
+
+			var ndistance = Math.sqrt((my_pos.x-m_sls.x)*(my_pos.x-m_sls.x) + (my_pos.y-m_sls.y)*(my_pos.y-m_sls.y))/theCanvas.width;
+			
+			var ndistance=utils.distance(my_pos, m_sls)/theCanvas.width; // can still be > 1
+
+			m_soundPlayer.tick(elapsedtime,ndistance);
+
+			var brightness=Math.floor(255*(1-Math.min(1,ndistance)));
+			//console.log("brightness is " + brightness);
+
+			var hx=d2h(brightness);
+			context.fillStyle = hx+hx+hx;
+
+			//console.log("distance = " + ndistance + ", brightness = " + brightness+ ", and hex = " + context.fillStyle);
+			context.fillRect(0,0,theCanvas.width,theCanvas.height);
+
+			drawPosition(my_pos.x, my_pos.y);
+
+
+
+			/*
+			if (mouse_down){
+				explosion(last_mousemove_event.x, last_mousemove_event.y, 4, "white", 6, "red");
 			}
+			*/
 
-			comm.sendJSONmsg("beginGesture", {"d":[[center.x,center.y,0]], "type": "mouseContourGesture", "cont": true});
-
-
-			for (var i=0;i<numXcells;i++){
-				for (var j=0;j<numYcells;j++){
-					d=utils.distance(center,m_cell[i][j]);
-					drawCell(m_cell[i][j], d/theCanvas.width);
-				}
-			}
-
-/*
-
-			context.save();
-			deg %= 360;
-			context.translate(100,0);
-			context.rotate(deg * Math.PI / 180);
-			context.fillRect(-37.5, -25, 75, 50);
-			context.restore();
-			deg++;
-*/
 			lastDrawTime=elapsedtime;
 
 		}
@@ -366,31 +451,30 @@ require(
 			event.preventDefault();
 			var m = utils.getCanvasMousePosition(theCanvas, e);
 
-			console.log("mouse down, x= " + m.x + ", y=", + m.y);
 
-			last_mousemove_event=m;
+			my_pos.x=m.x;
+			my_pos.y=m.y;
+
 			mouse_down=true;
-
-
-			//comm.sendJSONmsg("beginGesture", {"d":[[m.x,m.y,0]], "type": "mouseContourGesture", "cont": true});
-
 
 		}
 
 		function onMouseUp(e){
 			var m = utils.getCanvasMousePosition(theCanvas, e);
+			my_pos.x=m.x;
+			my_pos.y=m.y;
 			mouse_down=false;
-			comm.sendJSONmsg("endGesture", []);
 
 		}
 
 		function onMouseMove(e){
+			var m = utils.getCanvasMousePosition(theCanvas, e);
 			if (mouse_down){
-				last_mousemove_event=utils.getCanvasMousePosition(theCanvas, e);
-				var m = last_mousemove_event;
-
-				comm.sendJSONmsg("contGesture", {"d":[[m.x,m.y,0]]});
+				my_pos.x=m.x;
+				my_pos.y=m.y;
 			}
+			last_mousemove_event=m;
+
 		}
 
 
@@ -404,7 +488,7 @@ require(
 			
 			drawScreen(t_sinceOrigin);
 
-			m_agent && m_agent.tick(t_sinceOrigin/1000.0);
+
 
 			// create a display clock tick every 1000 ms
 			while ((t_sinceOrigin-m_lastDisplayTick)>1000){  // can tick more than once if computer went to sleep for a while...
@@ -460,8 +544,9 @@ require(
 			} 
    		 })
 */
-
-
+		// INITIALIZATIONS --------------------
+		radioContour.checked=true; // initialize
+		setTab("contourTab");
 
 	}
 );

@@ -22,7 +22,7 @@ define(
 
             "tick": function(now){
                m_interval.nextTime =  now+m_interval.min+(m_interval.max-m_interval.min)*Math.random();
-               console.log("tick.nextTime = " + m_interval.nextTime);
+               //console.log("tick.nextTime = " + m_interval.nextTime);
             },
 
             "init": function(i_avg, i_spreadFactor){
@@ -52,7 +52,7 @@ define(
                      this.snd && this.snd.setParamNorm("Modulation Index", .02 + .06*Math.random());
                      this.snd && this.snd.setParamNorm("Gain", .5*(1-ndistance)*(1-ndistance));
                      this.snd && this.snd.play();
-                     console.log("event playtime = " + tso);
+                     //console.log("event playtime = " + tso);
                      this.snd && this.snd.qrelease(config.minSndDuration);
                      this.snd && soundbank.releaseSnd(this.snd);     
 
