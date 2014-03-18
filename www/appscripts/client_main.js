@@ -456,7 +456,7 @@ function d2h(d) {
 
 			if (k_soundFlag === true){
 				m_soundPlayer.playonenote(0);
-				//m_soundPlayer.start();
+				m_soundPlayer.start();
 			}
 
 		}
