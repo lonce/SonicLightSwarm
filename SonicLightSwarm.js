@@ -54,7 +54,7 @@ function subscribe(rm) {
 
 function unsubscribe(rm) {
     var ws = this;
-    if ((rm != '') && (rm != undefined){
+    if ((rm != '') && (rm != undefined)){
         console.log("At time="  + Date.now() + ", about to remove from rm " + rm + " with " + rooms[rm].length + " members");
         rooms[rm] = rooms[rm].filter(function (s) {return s !== ws;});
         if ((rooms[rm] != undefined) && (rooms[rm].length===0)){
