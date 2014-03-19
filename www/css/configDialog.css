@@ -61,8 +61,4 @@ background:  white;
   font-weight: bold; 
 }
 
-#input{
-    -webkit-user-select: all;
-    -moz-user-select: all;
-    user-select: all;
-}
+

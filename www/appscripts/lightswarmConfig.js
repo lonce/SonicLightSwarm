@@ -113,7 +113,13 @@ define(
       var attach_to = document.getElementById("wrap"), parentDiv = attach_to.parentNode;
       parentDiv.insertBefore(reply_place, attach_to);
 
-      document.getElementById('roomSelect').focus();
+      var b=document.getElementById('roomSelect');
+      b.style.userSelect="text";
+      b.style.webkitUserSelect="text";
+      b.style.MozUserSelect="text";
+      b.style.userSelect="text";
+      b.setAttribute("unselectable", off);
+      b.focus();
    
     }
   
