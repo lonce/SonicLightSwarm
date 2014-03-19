@@ -60,3 +60,9 @@ background:  white;
   color:black; 
   font-weight: bold; 
 }
+
+#input{
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    user-select: text;
+}
