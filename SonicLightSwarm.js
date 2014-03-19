@@ -37,6 +37,7 @@ function subscribe(rm) {
     else
         rooms[rm].push(this);
 
+    console.log("subscribe: room = " + rm + ", and the room now has " + rooms[rm].length + " members.");
     roomBroadcast(this.room, this, 'newmember', [this.id]);
     console.log("new subscription to room " + rm);
 
@@ -54,8 +55,9 @@ function subscribe(rm) {
 
 function unsubscribe(rm) {
     var ws = this;
+    console.log("unsubscribe from room = " + rm);
     if ((rm != '') && (rm != undefined) && (rooms[rm] != undefined)){
-        console.log("At time="  + Date.now() + ", about to remove from rm " + rm + " with " + rooms[rm].length + " members");
+        console.log("Unsubscribe at time="  + Date.now() + ",  with " + rooms[rm].length + " members");
         rooms[rm] = rooms[rm].filter(function (s) {return s !== ws;});
         if ((rooms[rm] != undefined) && (rooms[rm].length===0)){
             console.log("deleting room " + rm);
