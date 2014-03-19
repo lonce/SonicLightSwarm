@@ -118,7 +118,7 @@ define(
       b.style.webkitUserSelect="text";
       b.style.MozUserSelect="text";
       b.style.userSelect="text";
-      b.setAttribute("unselectable", off);
+      b.setAttribute("unselectable", "off");
       b.focus();
    
     }
