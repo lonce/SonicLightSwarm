@@ -75,6 +75,7 @@ define(
       roomdiv.appendChild(input3);
 
 
+
    
       var submit_btn = document.createElement("input", "the_submit");
       submit_btn.type = "submit";
@@ -111,6 +112,8 @@ define(
       // Here, we must provide the name of the parent DIV on the main HTML page
       var attach_to = document.getElementById("wrap"), parentDiv = attach_to.parentNode;
       parentDiv.insertBefore(reply_place, attach_to);
+
+      document.getElementById('roomSelect').focus();
    
     }
   
