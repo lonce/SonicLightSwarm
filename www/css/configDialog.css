@@ -6,7 +6,7 @@
      width:100%;
      min-height:100%;
      z-index: 1000;
-     background:rgba(0,0,0,0.6);
+     background:rgba(0,0.5,0,0.6);
 }
  
 #overlay div {
@@ -62,7 +62,7 @@ background:  white;
 }
 
 #input{
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    user-select: text;
+    -webkit-user-select: all;
+    -moz-user-select: all;
+    user-select: all;
 }
