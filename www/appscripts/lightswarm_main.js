@@ -47,6 +47,25 @@ require(
 			} 
 		});
 
+		// secret keyboard shortcuts to play as agent (Ctl-Shift-A, or as human Ctl-Shift-H)
+		window.addEventListener("keydown", keyDown, true);
+		function keyDown(e){
+         		//var keyCode = e.keyCode;
+         		var charCode = (typeof e.which == "number") ? e.which : e.keyCode;
+         		switch(charCode){
+         			case 72: // h
+         				if ((e.ctrlKey)&&(e.shiftKey)){
+         					//alert("control s was pressed");
+							m_agent=undefined;
+         				}
+         				break;
+     				case 65: //a
+         				if ((e.ctrlKey)&&(e.shiftKey)){
+         					m_agent=agentPlayer();
+         				}
+         				break;
+				}
+		}
 
         var myrequestAnimationFrame = utils.getRequestAnimationFrameFunc();
 

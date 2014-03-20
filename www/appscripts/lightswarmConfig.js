@@ -33,6 +33,7 @@ define(
       legend.innerHTML = "Choose one:";
       form.appendChild(legend);
 
+/*
       var input1 = document.createElement("input");
       input1.type = "radio";
       input1.id = "humanID";
@@ -56,7 +57,7 @@ define(
       radio_label2.appendChild(document.createTextNode(radio_label2_text));
       form.appendChild(input2);
       form.appendChild(radio_label2);
-
+*/
       var roomdiv = document.createElement("roomdiv");
       roomdiv.type="div";
       roomdiv.id="roomdiv";
@@ -92,9 +93,13 @@ define(
                   break;
               }
           }
-          if (!checked) return false;
+          // if (!checked) return false; // prevents submission without having a radio button selected
 
-          uconfig.player = el.value;
+
+          //Use this line if we give user choise through input1 and input2 ...
+            //uconfig.player = el.value;
+            uconfig.player = "agent"; // if we don't allow selection, should run as "agent"
+
           var element = document.getElementById('overlay');
           element.parentNode.removeChild(element);
           c_id(); // call the callback when we have our info
