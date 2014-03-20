@@ -1,0 +1,45 @@
+*
+{
+    padding:0;
+    margin: 4px;
+    background-color:black;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+html, body
+{
+    height: 100%;
+    background-color:black;
+    color:white;
+
+}
+
+
+#wrap {
+    width: 100%;
+    height: 100%;
+    background-color: black; /*yellow; */
+}
+#block1{
+    width: 100%;
+    background-color:black; /*pink; */
+    height: 10%;
+}
+#block2{
+    width: 95%;
+    height: 70%;
+}
+
+div.scroll
+{
+background-color:white;
+color:black;
+overflow:scroll;
+border:3px solid #0000FF;
+}
+
+#block3{
+    text-align:center;
+    height: 10%;
+}
