@@ -59,7 +59,7 @@ function unsubscribe(rm) {
     if ((rm != '') && (rm != undefined) && (rooms[rm] != undefined)){
         console.log("Unsubscribe at time="  + Date.now() + ",  with " + rooms[rm].length + " members");
         rooms[rm] = rooms[rm].filter(function (s) {return s !== ws;});
-        if ((rooms[rm] != undefined) && (rooms[rm].length===0)){
+        if ((rooms[rm] != undefined) && (rooms[rm].length===0)){ // if nobody is in the room
             console.log("deleting room " + rm);
             delete rooms[rm];
         }
@@ -106,7 +106,7 @@ function roomBroadcast(room, sender, name, data) {
             if (ws.readyState === 1){
                 sendJSONmsg(ws, name, data, src);
             } else {
-                console.log( "ws" + ws + " with ws.id =" + ws.id + " is not in ready state");
+                console.log( "roomBroadcast: ws" + ws + " with ws.id =" + ws.id + " is not in ready state");
             }
         }
     });
@@ -140,7 +140,17 @@ function emitPulse() {
     var rm;
     for (rm in rooms){
         rooms[rm].forEach(function (ws) {
-            sendJSONmsg(ws, 'metroPulse', [JStime], 0);
+
+            if (ws.readyState === 1){
+                sendJSONmsg(ws, 'metroPulse', [JStime], 0);
+            } else {
+                console.log( "pulse: ws" + ws + " with ws.id =" + ws.id + " is not in ready state");
+            }
+
+
+
+
+            
         });
     }
 }
