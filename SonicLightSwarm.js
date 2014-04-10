@@ -101,7 +101,15 @@ function roomBroadcast(room, sender, name, data) {
 
     var src = sender ? sender.id : 0;
     //if (sender !== null) console.log(name, 'from', src);
-    rooms[room].forEach(function (ws) {if (ws !== sender) {sendJSONmsg(ws, name, data, src);}});
+    rooms[room].forEach(function (ws) {
+        if (ws !== sender) {
+            if (ws.readyState === 1){
+                sendJSONmsg(ws, name, data, src);
+            } else {
+                console.log( "ws" + ws + " with ws.id =" + ws.id + " is not in ready state");
+            }
+        }
+    });
 }
 
 function sendJSONmsg(ws, name, data, source) {
