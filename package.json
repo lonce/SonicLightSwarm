@@ -4,7 +4,6 @@
   "description": "Personal pixels respond to behavior on a central display",
   "main": "www/appscripts/XXXmain.js",
   "dependencies": {
-    "connect": "~3.0.1",
     "express": "~3.1.0",
     "ws": "~0.4.25"
   },

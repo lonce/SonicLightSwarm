@@ -5,6 +5,8 @@ var express = require("express")
 , wss = new WebSocketServer({server: server})
 , fs = require('fs');
 
+var logger = require('./jslibs/logger.js');
+
 var k_portnum = process.argv[2] || k_portnum;
 
 var id = 1; // Given out incrementally to room joining clients
@@ -158,6 +160,7 @@ setInterval(emitPulse, pulsePeriod);
 
 
 //****************************************************************************
+app.use(logger("SonicLightSwarm"));
 app.use(express.static(__dirname + "/www"));
 server.listen(k_portnum);
 console.log("Connected and listening on port " + k_portnum);
