@@ -148,11 +148,6 @@ function emitPulse() {
             } else {
                 console.log( "pulse: ws" + ws + " with ws.id =" + ws.id + " is not in ready state");
             }
-
-
-
-
-            
         });
     }
 }
