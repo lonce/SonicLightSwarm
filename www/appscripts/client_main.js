@@ -200,7 +200,7 @@ require(
 			m_sls.x=data.d[0][0];
 			m_sls.y=data.d[0][1];
 
-			//console.log("got begin gesture with data x=" + data.d[0][0] + ", and y=" + data.d[0][1]);
+			console.log("got begin gesture with data x=" + data.d[0][0] + ", and y=" + data.d[0][1]);
 
 		});
 
@@ -387,7 +387,7 @@ function d2h(d) {
 			//console.log("brightness is " + brightness);
 
 			var hx=d2h(brightness);
-			context.fillStyle = hx+hx+hx;
+			context.fillStyle = "#" + hx+hx+hx;
 
 			//console.log("distance = " + ndistance + ", brightness = " + brightness+ ", and hex = " + context.fillStyle);
 			context.fillRect(0,0,theCanvas.width,theCanvas.height);

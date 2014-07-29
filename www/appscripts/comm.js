@@ -40,6 +40,7 @@ define(
 				console.log("still waiting for connection");
 				return;
 			}
+			console.log("sending data " + data);
 			ws.send(JSON.stringify({n: name, d: data}));//, {mask: true});
 		};
 

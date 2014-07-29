@@ -300,7 +300,7 @@ require(
 		function drawCell(cell, b){
 			b=Math.max(0,1-b);
 			var hx=utils.d2h(Math.floor(255*b));
-			context.fillStyle = hx+"00"+hx;
+			context.fillStyle = "#" + hx+"00"+hx;
 
 			context.fillRect(cell.x,cell.y,b*cellSizeX,b*cellSizeY);
 		}
