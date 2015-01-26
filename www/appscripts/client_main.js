@@ -250,12 +250,14 @@ require(
 		comm.registerCallback('play', function(data, src) {
 			isPlayingP=true;
 			console.log('got play message');
+			m_soundPlayer.start();
 		});
 
 		//----------------------------------------
 		comm.registerCallback('stop', function(data, src) {
 			isPlayingP=false;
 			console.log('got stop message');
+			m_soundPlayer.stop();
 		});
 
 
@@ -461,7 +463,7 @@ function d2h(d) {
 
 			if (k_soundFlag === true){
 				m_soundPlayer.playonenote(.4);  // iOS needs to play at least one sound from user input before it will play anything else
-				m_soundPlayer.start();
+				//m_soundPlayer.start();
 			}
 
 		}
