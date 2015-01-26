@@ -14,7 +14,9 @@ require.config({
 				alert("This page cannot be run as a file, but must be served from a server (e.g. animatedsoundworks.com:8001, or localhost:8001)." );
 			}
 				// hardcoded to read sounds served from jsaSound listening on port 8001 (on the same server as the AnticipatoryScore server is running)
-				var host = "http://"+window.document.location.hostname + ":8001";
+				//var host = "http://"+window.document.location.hostname + ":8001";
+				// get sound models from the cloud
+				host = "http://"+"animatedsoundworks.com" + ":8001";
 				//alert("Will look for sounds served from " + host);
 				return (host );
 			})()
@@ -425,17 +427,6 @@ require(
 
 			m_agent && m_agent.tick(t_sinceOrigin/1000.0);
 
-			// create a display clock tick every 1000 ms
-			while ((t_sinceOrigin-m_lastDisplayTick)>1000){  // can tick more than once if computer went to sleep for a while...
-				m_tickCount++;
-				k_timeDisplayElm.innerHTML=Math.floor(m_lastDisplayTick/1000);
-				m_lastDisplayTick += 1000;
-
-				//console.log("displayElements length is " + displayElements.length)
-				if (displayElements.length >2){
-					var foo = 4;
-				}
-			}
 
 			//-----------  if an event is in the middle of being drawn, send it every sendCurrentEventInterval
 			// send current event data periodically (rather than waiting until it is complete)

@@ -24,7 +24,7 @@ define(
       submit_btn.type = "button";
       submit_btn.className = "submit";
       submit_btn.value = "Submit";
-      legend.innerHTML = "WAC Paris";
+      legend.innerHTML = "States of Diffusion @ ACM Multimedia";
       //form.appendChild(submit_btn);
       inner_div.appendChild(submit_btn);
       //msgbox.value="click resource loaded";
@@ -75,7 +75,7 @@ define(
       legend.innerHTML = "States of Diffusion @ ACM Multimedia<br> Loading ...";
       inner_div.appendChild(legend);
 
-      $.getJSON("/soundList/ModelDescriptors", function(data){
+      $.getJSON("/RoomList", function(data){
         var rList =  data.jsonItems;
         console.log("got something from server: " + rList);
         for (i=0;i<rList.length;i++){
