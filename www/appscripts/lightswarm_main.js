@@ -69,6 +69,22 @@ require(
 				}
 		}
 
+		var playButton = window.document.getElementById("playButton");
+		var stopButton = window.document.getElementById("stopButton");
+
+		playButton.onclick=function(){
+			console.log("play");
+			comm.sendJSONmsg("play", []);
+		}
+
+		stopButton.onclick=function(){
+			console.log("stop");
+			comm.sendJSONmsg("stop", []);
+		}
+
+
+
+
         var myrequestAnimationFrame = utils.getRequestAnimationFrameFunc();
 
 		var timeOrigin=Date.now();

@@ -28,6 +28,7 @@ require(
 	function (require, comm, utils, touch2Mouse,  soundbank, scoreEvent,  soundPlayer,  config, clientConfig) {
 
 		var mouse_down=false;
+		var isPlayingP=false;
 
 		var k_soundFlag=true;
 		        var latitude=0;
@@ -243,6 +244,20 @@ require(
 				}
 			}
 		});
+
+		//----------------------------------------
+
+		comm.registerCallback('play', function(data, src) {
+			isPlayingP=true;
+			console.log('got play message');
+		});
+
+		//----------------------------------------
+		comm.registerCallback('stop', function(data, src) {
+			isPlayingP=false;
+			console.log('got stop message');
+		});
+
 
 
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

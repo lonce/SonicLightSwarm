@@ -29,6 +29,9 @@ registerCallback('beginGesture', beginGesture);
 registerCallback('endGesture', endGesture);
 registerCallback('startTime', startTime);
 
+registerCallback('play', playMsg);
+registerCallback('stop', stopMsg);
+
 // Note: for all functions used as callbacks, "this" will be a socket passed to the .call()
 function subscribe(rm) {
     this.room = rm;
@@ -94,6 +97,17 @@ function startTime() {
     var JStime = Date.now();
     roomBroadcast(this.room, 0, 'startTime', [JStime]); // 0 sender sends to all members in a room
 }
+
+function playMsg(data) {
+    console.log('broadcast play');
+    roomBroadcast(this.room, 0, 'play', data); // 0 sender sends to all members in a room
+}
+function stopMsg(data) {
+    console.log('broadcast stop');
+    roomBroadcast(this.room, 0, 'stop', data); // 0 sender sends to all members in a room
+}
+
+
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
