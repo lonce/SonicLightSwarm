@@ -2,66 +2,41 @@
 Just include this file in a require module, no need to call anything. 
 */
 require.config({
-  paths: {
-    "jquery": "http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min"
-  }
 });
 define(
-  ["jsaSound/jsaModels/jsaMp3", "jquery"],
-  function(sndFactory){
+  ["jsaSound/jsaModels/jsaMp3", "gateKeeperFactory", "utils"],
+  function(sndFactory, loadGateFactory, utils){
 
-  var msgbox = document.getElementById("msg");
-  //msgbox.value="configuring";
+    // object to be returned by this module
+    var uconfig = {
+      "player": undefined,
+      "room": undefined,
+      "gatekey": (gateKeeperFactory(["resourceLoaded"], // after all keys are set(), function will execute
+          function(){
+            // replace "loading" with "All ready" and make the submit button available
+            legend.innerHTML = uconfig.room + ": All loaded and ready to go!";
+            inner_div.appendChild(submit_btn);
+          })),
+      "report": function(){}
+    };
 
-        var reply_place = document.createElement("div");
-      reply_place.id = "overlay";
-      var inner_div = document.createElement("div"), button_close = document.createElement("button");
 
-
+    var msgbox = document.getElementById("msg");
+    var overlay_div = document.createElement("div");
+      overlay_div.id = "overlay";
+    var inner_div = document.createElement("div");
+    var button_close = document.createElement("button");
     var submit_btn = document.createElement("input");
-    var permitSubmit=function(){
-      //alert("click sound loaded");
       submit_btn.type = "button";
       submit_btn.className = "submit";
       submit_btn.value = "Submit";
-      legend.innerHTML = "WAC Paris";
-      //form.appendChild(submit_btn);
-      inner_div.appendChild(submit_btn);
-      //msgbox.value="click resource loaded";
+    var legend = document.createElement("legend");
+ 
 
-    }
-
- // These properties must be set thu the config interface before the SUBMIt button will appear
-  var m_ready = {
-    "soundsLoaded": false,
-    "serverAck": false,
-    "resourceLoaded": false,
-
-    "test": function(){
-      //if (m_ready.soundsLoaded && m_ready.serverAck && m_ready.resourceLoaded){
-      if (m_ready.resourceLoaded){
-        return true;
-      } return false;
-    }
-  } 
-
+    // The real reason for this sound is that Apple devices require a user-initiated sound before the program can generate sound on its own
     var okSound=sndFactory();
     
-    var uconfig = {
-      "player": undefined,
-      "room": undefined
-    };
-
-    uconfig.set= function (elmt){
-      console.log("configure: setting " + elmt);
-        m_ready[elmt]=true;
-        if (m_ready.test()) {
-          permitSubmit();
-        }
-    } 
-
-    uconfig.report = function(c_id) {
-   
+    //uconfig.report = function(c_id) {
       button_close.id = "upprev_close";
       button_close.innerHTML = "x";
       button_close.onclick = function () {
@@ -70,31 +45,22 @@ define(
       };
       inner_div.appendChild(button_close);
    
-      var legend = document.createElement("legend");
       legend.id="legend";
-      legend.innerHTML = "States of Diffusion @ ACM Multimedia<br> Loading ...";
+      legend.innerHTML = "Performance <br> Loading ...";
       inner_div.appendChild(legend);
 
-      $.getJSON("/soundList/ModelDescriptors", function(data){
-        var rList =  data.jsonItems;
-        console.log("got something from server: " + rList);
-        for (i=0;i<rList.length;i++){
-          if (rList[i]==="WAC"){
-            uconfig.room="WAC";
-            return;
-          } 
-        }
-        alert("Sorry - there is no performance to connect to.<br> Try reloading page.");
-        uconfig.room="defaultRoom";
-        return;
-      });
+      utils.getJSON("/roomList", function(data){
+          if (data.jsonItems.length > 0){
+            uconfig.room=data.jsonItems[0]; // There will be either none or 1, depending on whether "conductor" client is running
+          } else{
+           alert("Sorry - there is no performance to connect to.<br> Try reloading page.");           
+          }
+          return;
+        }, function (e){alert("some kind of room server error " + e);});
 
-   
-
-          // This is a click sound which get the iOs sound flowing
-
+    // This is a click sound which get the iOs sound flowing
     okSound.on("resourceLoaded",  function(){
-      uconfig.set("resourceLoaded");
+      uconfig.gatekey.set("resourceLoaded");
     });
     okSound.setParam("Sound URL", "resources/click.mp3");
 
@@ -121,18 +87,20 @@ define(
           }
           element.parentNode.removeChild(element);
 
-          c_id(); // call the callback when we have our info
+          uconfig.fire("submit");
+          //c_id(); // call the callback when we have our info
           return false;
       }
    
-      reply_place.appendChild(inner_div);
+      overlay_div.appendChild(inner_div);
       
       // Here, we must provide the name of the parent DIV on the main HTML page
       var attach_to = document.getElementById("wrap"), parentDiv = attach_to.parentNode;
-      parentDiv.insertBefore(reply_place, attach_to);
+      parentDiv.insertBefore(overlay_div, attach_to);
    
-    }
+//    }
   
+  utils.eventuality(uconfig); // so that we can fire an event when the SUBMIT button is pushed
   return uconfig;
 
   }

@@ -5,9 +5,9 @@ var express = require("express")
 , wss = new WebSocketServer({server: server})
 , fs = require('fs');
 
-var logger = require('./jslibs/logger.js');
+//var logger = require('./jslibs/logger.js');
 
-var k_portnum = process.argv[2] || k_portnum;
+var k_portnum = process.argv[2] || 7000+Math.floor(2000*Math.random());
 
 var id = 1; // Given out incrementally to room joining clients
 // Room list, each with an array of members (socket connections made by clients)
@@ -18,19 +18,14 @@ var rooms = {'': []};
 var callbacks = {};
 function registerCallback(name, callback) {
     callbacks[name] = callback;
-    //console.log("callbacks["+name+"]="+callback);
 }
 
-// messages this server handles from clients
+// client messages the server needs to intercept to take action
 registerCallback('subscribe', subscribe);
 registerCallback('unsubscribe', unsubscribe);
-registerCallback('contGesture', contGesture);
-registerCallback('beginGesture', beginGesture);
-registerCallback('endGesture', endGesture);
 registerCallback('startTime', startTime);
 
-registerCallback('play', playMsg);
-registerCallback('stop', stopMsg);
+
 
 // Note: for all functions used as callbacks, "this" will be a socket passed to the .call()
 function subscribe(rm) {
@@ -53,8 +48,6 @@ function subscribe(rm) {
         }
         return rmids;
     }()));
-    //sendJSONmsg(this, 'instruments', activeInstruments[rm]);
-    //sendJSONmsg(this, 'notes', histories[rm]);
 }
 
 
@@ -75,39 +68,16 @@ function unsubscribe(rm) {
 }
 
 
-
-// basic data exchange method for responding to one socket, sending to rest
-function contGesture(data) {
-    roomBroadcast(this.room, this, 'contGesture', data);
-}
-
-// basic data exchange method for responding to one socket, sending to rest
-function beginGesture(data) {
-    roomBroadcast(this.room, this, 'beginGesture', data);
-}
-
-
-// basic data exchange method for responding to one socket, sending to rest
-function endGesture(data) {
-    roomBroadcast(this.room, this, 'endGesture', data);
-}
-
-// When 'ere a client sends this message, the server sends out a new time to all room members
+// When  a client sends this message, the server sends out a new time to all room members
 function startTime() {
     var JStime = Date.now();
     roomBroadcast(this.room, 0, 'startTime', [JStime]); // 0 sender sends to all members in a room
 }
 
-function playMsg(data) {
-    console.log('broadcast play');
-    roomBroadcast(this.room, 0, 'play', data); // 0 sender sends to all members in a room
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+function genericBroadcast(m, data) {
+    roomBroadcast(this.room, this, m, data);
 }
-function stopMsg(data) {
-    console.log('broadcast stop');
-    roomBroadcast(this.room, 0, 'stop', data); // 0 sender sends to all members in a room
-}
-
-
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -140,11 +110,16 @@ function receiveJSONmsg(data, flags) {
         return;
     }
     
-    if (!obj.hasOwnProperty('d') || !obj.hasOwnProperty('n') || callbacks[obj.n] === undefined)
+    if (!obj.hasOwnProperty('d') || !obj.hasOwnProperty('n'))
         return;
     //console.log("object.d: " + object.d + ", object.n:"+ object.n);
 
-    callbacks[obj.n].call(this, obj.d);
+    if (callbacks[obj.n]){
+        console.log("callback: " + obj.n);
+        callbacks[obj.n].call(this, obj.d);
+    } else {
+        genericBroadcast.call(this, obj.n, obj.d);
+    }
 }
 //****************************************************************************
 // Server activity code (other than it's simple message-relay duties)
@@ -169,7 +144,7 @@ setInterval(emitPulse, pulsePeriod);
 
 
 //****************************************************************************
-app.use(logger("SonicLightSwarm"));
+//app.use(logger("SonicLightSwarm"));
 app.use(express.static(__dirname + "/www"));
 server.listen(k_portnum);
 console.log("Connected and listening on port " + k_portnum);
@@ -180,7 +155,6 @@ wss.on('connection', function (ws) {
     ws.on('message', receiveJSONmsg.bind(ws));
     ws.room = '';
     sendJSONmsg(ws, 'init', [ws.id, Date.now()]);
-    //sendRooms.call(ws);
 
     ws.on('close', function() {        
         callbacks['unsubscribe'].call(ws, ws.room);
@@ -199,10 +173,10 @@ function getRoomList(){
     return rlist;
 }
 
-app.get(["/soundList", "/soundList/ModelDescriptors"],function(req, res){
+app.get(["/roomList"],function(req, res){
   var jsonObj;
   var jsonList=[];
-  console.log("fetching from ModelDescriptors");
+  console.log("got request for roomlist, so send it")
   res.send({"jsonItems":   getRoomList()  }); // returns an array of room names
 });
 

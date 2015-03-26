@@ -1,0 +1,17 @@
+
+The comm ojbect manages message sending.
+
+CLIENTS register for the incoming messages, and thereafter recieve callback when they are received:
+	comm.registerCallback(message_name, cb_function);
+and sends messages thus:
+	comm.sendJSONmsg(message_name, data_array);
+
+Internally, the comm module creates a message object:
+{
+	"n": //name of message, e.g. "note on",
+	"d": //an array of data that the receiver knows how to parse based on the message name,
+	"s": //an id uniquiely identifying the message sender 
+}
+JSONStrinifies it, and sends it to the server.
+
+

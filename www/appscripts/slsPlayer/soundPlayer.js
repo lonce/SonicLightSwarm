@@ -1,6 +1,6 @@
 define(
 	["soundbank", "config"],
-	function (soundbank, config, genericScoreEvent) {
+	function (soundbank, config) {
       return function (){
  
          var m_player={};
@@ -62,7 +62,7 @@ define(
                      this.snd=soundbank.getSnd();
                      this.snd && this.snd.setParamNorm("Carrier Frequency", .8 + .3*Math.random());
                      this.snd && this.snd.setParamNorm("Modulation Index", .02 + .06*Math.random());
-                     this.snd && this.snd.setParamNorm("Gain", (1-ndistance)*(1-ndistance));
+                     this.snd && this.snd.setParamNorm("Gain", .4*(1-ndistance)*(1-ndistance));
                      this.snd && this.snd.play();
                      //console.log("event playtime = " + tso);
                      this.snd && this.snd.qrelease(config.minSndDuration);

@@ -24,7 +24,7 @@ define(
 				return;
 			}
 			//console.log("received message ",  obj);
-			// All messages should have 
+			// All messages can have 
 			//	.n - name of method to call (this is the "message"),
 			//	.d - the data payload (methods must know the data they exepct)
 			//	.s - an id of the remote client sending the message

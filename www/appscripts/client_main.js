@@ -23,9 +23,9 @@ require.config({
 	}
 });
 require(
-	["require", "comm", "utils", "touch2Mouse",  "soundbank",  "scoreEvents/scoreEvent",  "slsPlayer/soundPlayer", "config", "clientConfig"],
+	["require", "comm", "utils", "touch2Mouse",  "soundbank",   "slsPlayer/soundPlayer", "config", "clientConfig"],
 
-	function (require, comm, utils, touch2Mouse,  soundbank, scoreEvent,  soundPlayer,  config, clientConfig) {
+	function (require, comm, utils, touch2Mouse,  soundbank,  soundPlayer,  config, clientConfig) {
 
 		var mouse_down=false;
 		var isPlayingP=false;
@@ -38,7 +38,8 @@ require(
 		m_soundPlayer = soundPlayer();
 		m_soundPlayer.init(250, 1.6);
 
-		clientConfig.report(function(){
+		clientConfig.on("submit", function(){
+		//clientConfig.report(function(){
 			/*
 			if (clientConfig.player === "agent"){
 				console.log("you will play with (or as) an agent");
@@ -173,6 +174,7 @@ require(
 			colorIDMap[myID]="#00FF00";
 
 		});
+		
 		//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of contGesture, and src is the id of the clicking client
 		comm.registerCallback('contGesture', function(data, src) {

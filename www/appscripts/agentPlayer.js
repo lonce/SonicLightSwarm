@@ -1,6 +1,6 @@
 define(
-    ["comm", "soundbank", "scoreEvents/scoreEvent"],
-    function (comm, soundbank, generalScoreEvent) {
+    ["comm"],
+    function (comm) {
 
         var freqX=.12; // per second
         var freqY=.155; // per second

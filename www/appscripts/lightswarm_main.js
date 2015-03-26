@@ -23,14 +23,16 @@ require.config({
 	}
 });
 require(
-	["require", "comm", "utils", "touch2Mouse",  "soundbank",  "scoreEvents/scoreEvent",  "agentPlayer", "config", "lightswarmConfig"],
+	["require", "comm", "utils", "touch2Mouse",  "soundbank",    "agentPlayer", "config", "lightswarmConfig"],
 
-	function (require, comm, utils, touch2Mouse,  soundbank, scoreEvent,  agentPlayer, config, lightswarmConfig) {
+	function (require, comm, utils, touch2Mouse,  soundbank, agentPlayer, config, lightswarmConfig) {
 
 		var mouse_down=false;
 
 		var m_agent;
-		lightswarmConfig.report(function(){
+
+		lightswarmConfig.on("submit", function(){
+		//lightswarmConfig.report(function(){
 			if (lightswarmConfig.player === "agent"){
 				console.log("you will play with (or as) an agent");
 				m_agent=agentPlayer();
@@ -142,6 +144,8 @@ require(
 			current_remoteEvent[src].e=data[data.length-1][0];
 		});
 				//---------------------------------------------------------------------------
+/*
+
 		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
 		comm.registerCallback('beginGesture', function(data, src) {
 			var fname;
@@ -170,7 +174,7 @@ require(
 			}
 		});
 
-
+*/
 		//---------------------------------------------------------------------------
 		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
 		comm.registerCallback('endGesture', function(data, src) {
@@ -487,7 +491,9 @@ require(
    		 })
 */
 
-
+		window.onbeforeunload = function (e) {
+			comm.sendJSONmsg("stop", []);
+		}
 
 	}
 );

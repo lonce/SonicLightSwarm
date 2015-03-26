@@ -3,15 +3,15 @@ Just include this file in a require module, no need to call anything.
 */
 
 define(
-  [],
-  function(){
+  ["utils"],
+  function(utils){
 
     var uconfig = {
       "player": undefined,
       "room": undefined
     };
 
-    uconfig.report = function(c_id) {
+//    uconfig.report = function(c_id) {
       var form = document.createElement("form", "report_form");
       form.id = "report_form";
       form.method = "post";
@@ -98,14 +98,18 @@ define(
 
           //Use this line if we give user choise through input1 and input2 ...
             //uconfig.player = el.value;
-            uconfig.player = "agent"; // if we don't allow selection, should run as "agent"
+          uconfig.player = "agent"; // if we don't allow selection, should run as "agent"
 
           var element = document.getElementById('overlay');
           element.parentNode.removeChild(element);
-          c_id(); // call the callback when we have our info
+          
+          //c_id(); // call the callback when we have our info
 
           //var poststr = "c_id=" + c_id + "&reason=" + encodeURI(el.value);
           //alert(poststr);
+
+
+          uconfig.fire("submit");
           return false;
       }
    
@@ -126,8 +130,9 @@ define(
       //b.setAttribute("unselectable", "off");
       b.focus();
    
-    }
-  
+//    }
+
+  utils.eventuality(uconfig); // so that we can fire an event when the SUBMIT button is pushed  
   return uconfig;
 
   }
