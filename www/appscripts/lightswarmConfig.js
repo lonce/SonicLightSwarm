@@ -6,6 +6,8 @@ define(
   ["utils"],
   function(utils){
 
+
+
     var uconfig = {
       "player": undefined,
       "room": undefined

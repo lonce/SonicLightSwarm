@@ -23,9 +23,9 @@ require.config({
 	}
 });
 require(
-	["require", "comm", "utils", "touch2Mouse",  "soundbank",   "slsPlayer/soundPlayer", "config", "clientConfig"],
+	["comm", "utils", "touch2Mouse",  "soundbank",   "slsPlayer/soundPlayer", "config", "clientConfig"],
 
-	function (require, comm, utils, touch2Mouse,  soundbank,  soundPlayer,  config, clientConfig) {
+	function (comm, utils, touch2Mouse,  soundbank,  soundPlayer,  config, clientConfig) {
 
 		var mouse_down=false;
 		var isPlayingP=false;
@@ -39,27 +39,6 @@ require(
 		m_soundPlayer.init(250, 1.6);
 
 		clientConfig.on("submit", function(){
-		//clientConfig.report(function(){
-			/*
-			if (clientConfig.player === "agent"){
-				console.log("you will play with (or as) an agent");
-
-			}
-			*/
- 
-
-/*
-			if (navigator.geolocation.watchPosition(function(position){
-		        latitude = position.coords.latitude;
-		        longitude = position.coords.longitude;
-		        accuracy = position.coords.accuracy;
-
-         		var capa = document.getElementById("footer");
-         		capa.innerHTML = "latitude: " + latitude + " longitude: " + longitude + "   precision  :  " + accuracy;  
-
-			}));
-*/
-
 			// unsubscribe to previous room, join new room
 			if (myRoom != undefined) comm.sendJSONmsg("unsubscribe", [myRoom]);
     		myRoom  = clientConfig.room;
@@ -101,31 +80,10 @@ require(
 		var k_minLineThickness=1;
 		var k_maxLineThickness=16; // actually, max will be k_minLineThickness + k_maxLineThickness
 
-		var radioSpray = window.document.getElementById("radioSpray"); 
-		var radioContour = window.document.getElementById("radioContour");
-		var radioText = window.document.getElementById("radioText");
-
-
-
-		var toggleYLockP=0;
-		var yLockVal;
-
-
-
-
-
-		var toggleTimeLockP=0;
-
-
-
-	
-		var toggleSoundState=1;
-
-
 
 		//initialize sound band
 		if(config.webkitAudioEnabled){
-				soundbank.create(toggleSoundState*12); // max polyphony 
+				soundbank.create(12); // max polyphony 
 		}
 
 
@@ -148,20 +106,6 @@ require(
 				}
 		}
 
-
-		//radioContour.addEventListener("onclick", function(){console.log("radio Contour");});
-		var setTab=function(showTab){
-			window.document.getElementById("contourTab").style.display="none";
-			window.document.getElementById("sprayTab").style.display="none";
-
-
-			window.document.getElementById(showTab).style.display="inline-block";
-
-		}
-
-
-		var k_sprayPeriod = 100;// ms between sprayed events
-		var m_lastSprayEvent = 0; // time (rel origin) of the last spray event (not where on the score, but when it happened. 
 
 
 		//---------------------------------------------------------------------------
@@ -197,14 +141,6 @@ require(
 
 		});
 
-
-		//---------------------------------------------------------------------------
-		// data is [timestamp (relative to "now"), x,y] of mouseContourGesture, and src is the id of the clicking client
-		comm.registerCallback('endGesture', function(data, src) {
-
-
-			console.log("got end gesture")
-		});
 
 		//---------------------------------------------------------------------------
 		comm.registerCallback('metroPulse', function(data, src) {
@@ -431,26 +367,6 @@ function d2h(d) {
 			current_mgesture_2send=undefined;
 		}
 
-
-		function endContour(){
-			//console.log("current event is " + current_mgesture + " and the data length is " + current_mgesture.d.length);
-			current_mgesture.b=current_mgesture.d[0][0];
-			//console.log("contour length is " + current_mgesture.d.length);
-			current_mgesture.e=current_mgesture.d[current_mgesture.d.length-1][0];
-			//console.log("gesture.b= "+current_mgesture.b + ", and gesture.e= "+current_mgesture.e);
-			
-			if (myRoom != undefined) {
-				console.log("sending event");
-				if (current_mgesture_2send){
-					if (current_mgesture_2send.d.length > 0){
-						comm.sendJSONmsg("contGesture", current_mgesture_2send.d);
-					}
-					comm.sendJSONmsg("endGesture", []);
-				}	
-			}
-			current_mgesture=undefined;
-			current_mgesture_2send=undefined;
-		}
 	
 		// Record the time of the mouse event on the scrolling score
 		function onMouseDown(e){
@@ -523,28 +439,7 @@ function d2h(d) {
 
 		//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 		// callback from html
-/*
-		var roomselect = document.getElementById('roomList');
 
-		roomselect.addEventListener('change', function(e) {
-
-			if (myRoom != undefined) comm.sendJSONmsg("unsubscribe", [myRoom]);
-
-        	myRoom  = e.currentTarget.value;
-        	//document.getElementById("current_room").value=mylist.options[mylist.selectedIndex].text;
-        	//document.getElementById("current_room").value=myRoom;
-
-			if (myRoom != undefined) {
-        		// just choose a default room (rather than getting a list from the server and choosing)
-				comm.sendJSONmsg("subscribe", [myRoom]);
-				// Tell everybody in the room to restart their timers.
-				comm.sendJSONmsg("startTime", []);
-			} 
-   		 })
-*/
-		// INITIALIZATIONS --------------------
-		//radioContour.checked=true; // initialize
-		//setTab("contourTab");
 
 		window.onbeforeunload = function (e) {
 			m_soundPlayer.stop();

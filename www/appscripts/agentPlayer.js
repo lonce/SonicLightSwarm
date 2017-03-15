@@ -1,6 +1,6 @@
 define(
-    ["comm"],
-    function (comm) {
+    [],
+    function () {
 
         var freqX=.12; // per second
         var freqY=.155; // per second

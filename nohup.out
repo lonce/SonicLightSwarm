@@ -1,0 +1,7 @@
+Connected and listening on port 9080
+got a connection at time 1489522808470, assigning ID = 1
+callback: subscribe
+creating rm AH2017
+subscribe: room = AH2017, and the room now has 1 members.
+new subscription to room AH2017
+callback: startTime

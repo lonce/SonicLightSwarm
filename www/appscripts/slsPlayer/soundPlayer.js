@@ -40,12 +40,6 @@ define(
 
          m_player.init=m_interval.init;
 
-/*
-         m_player.init = function(i_avg, i_spreadFactor){
-            m_interval.init(i_avg, i_spreadFactor);
-         }
-*/
-
          m_player.tick = function(tso, ndistance){
 
             if (! m_player.playingP) return;
@@ -53,8 +47,6 @@ define(
             if (tso > m_interval.nextTime){
                      m_player.playonenote(ndistance);
                      m_interval.tick(tso);
-
-
             }
       };
 

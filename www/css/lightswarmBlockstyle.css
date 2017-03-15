@@ -92,7 +92,6 @@ html, body
     }
 
 
-
 #block3 {
     background-color: black; /*green*/
     width: 100%;
@@ -104,12 +103,13 @@ html, body
 
 #block3a {
         background-color: black;
-        width: 3%;
+        width: 0%;
         height: 100%; 
         /*position: absolute;
         top: 10%
         bottom: 70%; */
-        float: left; 
+        float: right; 
+        /*padding-left: 20%;*/
         overflow: visible;
         /* overflow-y: scroll;*/
     }
