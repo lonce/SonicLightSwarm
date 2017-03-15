@@ -36,7 +36,9 @@ require(
 		        var accuracy=0;
 
 		m_soundPlayer = soundPlayer();
-		m_soundPlayer.init(250, 1.6);
+		var k_avg_ioi = 2500; // ms
+		var k_spread=1.6
+		m_soundPlayer.init(k_avg_ioi, k_spread);
 
 		clientConfig.on("submit", function(){
 			// unsubscribe to previous room, join new room
@@ -83,7 +85,7 @@ require(
 
 		//initialize sound band
 		if(config.webkitAudioEnabled){
-				soundbank.create(12); // max polyphony 
+				soundbank.create(1); // max polyphony 
 		}
 
 
@@ -99,7 +101,7 @@ require(
          					//alert("control s was pressed");
          					e.preventDefault();
          					if(config.webkitAudioEnabled){
-								soundbank.create(12); // max polyphony 
+								soundbank.create(1); // max polyphony 
 							}
 							
          				}
@@ -161,7 +163,7 @@ require(
 			m_lastDisplayTick=0;
 			displayElements=[];		
 
-			m_soundPlayer.init(250, 1.6); // because time gets reset
+			m_soundPlayer.init(k_avg_ioi, k_spread); // because time gets reset
 		});
 		//---------------------------------------------------------------------------
 		// Just make a color for displaying future events from the client with the src ID
@@ -169,7 +171,7 @@ require(
 			console.log("new member : " + src);
 			colorIDMap[src]=utils.getRandomColor1(100,255,0,120,100,255);
 
-			m_soundPlayer.init(250, 1.6);
+			m_soundPlayer.init(k_avg_ioi, k_spread);
 		});
 		//---------------------------------------------------------------------------
 		// src is meaningless since it is this client

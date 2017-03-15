@@ -253,6 +253,7 @@ require(
 
 		function onMouseUp(e){
 			var m = utils.getCanvasMousePosition(theCanvas, e);
+			mouse_down=false;
 		}
 
 		function onMouseMove(e){

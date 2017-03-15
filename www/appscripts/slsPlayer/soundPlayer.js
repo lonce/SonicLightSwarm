@@ -18,9 +18,9 @@ define(
 
          var m_interval = {
             "avg":1000, //ms
-            "spreadFactor":1.2,
-            "min":0,
-            "max":1,
+            "spreadFactor":1.2, // reset by init
+            "min":10000, // reset by init
+            "max":10000, // reset by init
             "nextTime":0,
             "that":this,
 
@@ -51,13 +51,15 @@ define(
       };
 
       m_player.playonenote=function(ndistance){
+            console.log('play!')
                      this.snd=soundbank.getSnd();
-                     this.snd && this.snd.setParamNorm("Carrier Frequency", .8 + .3*Math.random());
-                     this.snd && this.snd.setParamNorm("Modulation Index", .02 + .06*Math.random());
-                     this.snd && this.snd.setParamNorm("Gain", .4*(1-ndistance)*(1-ndistance));
+                     //this.snd && this.snd.setParamNorm("Carrier Frequency", .8 + .3*Math.random());
+                     //this.snd && this.snd.setParamNorm("Modulation Index", .02 + .06*Math.random());
+                     this.snd && this.snd.setParamNorm("Gain", .4*(1-ndistance)*(1-ndistance)*(1-ndistance)*(1-ndistance)*(1-ndistance)*(1-ndistance)*(1-ndistance));
                      this.snd && this.snd.play();
                      //console.log("event playtime = " + tso);
-                     this.snd && this.snd.qrelease(config.minSndDuration);
+                     //this.snd && this.snd.qrelease(config.minSndDuration);
+                     this.snd && this.snd.qrelease(1200);
                      this.snd && soundbank.releaseSnd(this.snd);     
 
       }
