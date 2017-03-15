@@ -3,7 +3,7 @@ define(
 		exports = {};
 		exports.webkitAudioEnabled=true;
 
-		if (!window.AudioContext) {
+		if (!window.webkitAudioContext) && (!window.AudioContext) {
 			alert("Web Audio API is not supported. You can join a score room interactively as a controller, but you won't hear your sounds unless you are within earshot of a webkitAudio enabled machine in the same score room.");
 			exports.webkitAudioEnabled=false;
 		}
