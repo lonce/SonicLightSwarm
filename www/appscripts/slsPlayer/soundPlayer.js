@@ -44,6 +44,8 @@ define(
 
             if (! m_player.playingP) return;
 
+            this.snd && this.snd.setParamNorm("Gain", .5*(1-ndistance)*(1-ndistance)*(1-ndistance)*(1-ndistance)*(1-ndistance)*(1-ndistance));
+
             if (tso > m_interval.nextTime){
                      m_player.playonenote(ndistance);
                      m_interval.tick(tso);
