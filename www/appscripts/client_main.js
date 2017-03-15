@@ -382,7 +382,7 @@ function d2h(d) {
 			mouse_down=true;
 
 			if (k_soundFlag === true){
-				m_soundPlayer.playonenote(.4);  // iOS needs to play at least one sound from user input before it will play anything else
+				m_soundPlayer.playonenote(.75);  // iOS needs to play at least one sound from user input before it will play anything else
 				//m_soundPlayer.start();
 			}
 
