@@ -11,12 +11,12 @@ require.config({
 	paths: {
 		"jsaSound": (function(){
 			if (! window.document.location.hostname){
-				alert("This page cannot be run as a file, but must be served from a server (e.g. animatedsoundworks.com:8001, or localhost:8001)." );
+				alert("This page cannot be run as a file, but must be served from a server" );
 			}
 				// hardcoded to read sounds served from jsaSound listening on port 8001 (on the same server as the AnticipatoryScore server is running)
 				//var host = "http://"+window.document.location.hostname + ":8001";
 				// get  models from the cloud
-				 host = "http://"+"animatedsoundworks.com" + ":8001";
+				 host = "https://"+"animatedsoundworks.com";
 				//alert("Will look for sounds served from " + host);
 				return (host );
 			})()
