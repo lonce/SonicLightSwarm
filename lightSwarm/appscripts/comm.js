@@ -3,7 +3,8 @@ define(
 	function () {
 
 		var host = document.location.host;
-		var ws = new WebSocket('ws://' + host);
+		// the subirectory is irrelevant when running locally, but important when proxied by nginx
+		var ws = new WebSocket('ws://' + host + '/lightSwarm/');
 
 		console.log("host is " + host);
 
