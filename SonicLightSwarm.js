@@ -145,7 +145,7 @@ setInterval(emitPulse, pulsePeriod);
 
 //****************************************************************************
 //app.use(logger("SonicLightSwarm"));
-app.use(express.static(__dirname + "/lightSwarm"));
+app.use(express.static(__dirname + "/lightSwarm/"));
 server.listen(k_portnum);
 console.log("Connected and listening on port " + k_portnum);
 
