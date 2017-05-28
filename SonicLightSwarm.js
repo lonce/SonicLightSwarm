@@ -173,7 +173,7 @@ function getRoomList(){
     return rlist;
 }
 
-app.get(["/roomList"],function(req, res){
+app.get(["/lightSwarm/roomList"],function(req, res){
   var jsonObj;
   var jsonList=[];
   console.log("got request for roomlist, so send it")
