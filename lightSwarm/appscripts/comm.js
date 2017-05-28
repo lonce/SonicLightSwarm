@@ -1,10 +1,10 @@
 define(
-	[],
-	function () {
+	["config"],
+	function (config) {
 
 		var host = document.location.host;
 		// the subirectory is irrelevant when running locally, but important when proxied by nginx
-		var ws = new WebSocket('ws://' + host + '/lightSwarm/');
+		var ws = new WebSocket('ws://' + host + config.path + '/');
 
 		console.log("host is " + host);
 

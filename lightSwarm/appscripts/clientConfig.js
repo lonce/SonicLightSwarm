@@ -4,8 +4,8 @@ Just include this file in a require module, no need to call anything.
 require.config({
 });
 define(
-  ["jsaSound/jsaModels/jsaMp3", "gateKeeperFactory", "utils"],
-  function(sndFactory, loadGateFactory, utils){
+  ["jsaSound/jsaModels/jsaMp3", "gateKeeperFactory", "utils", "config"],
+  function(sndFactory, loadGateFactory, utils, config){
 
     // object to be returned by this module
     var uconfig = {
@@ -49,7 +49,7 @@ define(
       legend.innerHTML = "Performance <br> Loading ...";
       inner_div.appendChild(legend);
 
-      utils.getJSON("/roomList", function(data){
+      utils.getJSON(config.path + "/roomList", function(data){
           if (data.jsonItems.length > 0){
             uconfig.room=data.jsonItems[0]; // There will be either none or 1, depending on whether "conductor" client is running
           } else{

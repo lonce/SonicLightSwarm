@@ -8,6 +8,12 @@ define(
 			exports.webkitAudioEnabled=false;
 		}
 
+		if ((window.document.location.hostname).includes("sonicthings.org")){
+	        exports.path="/lightSwarm";//+window.document.location.hostname;
+	      } else {
+	        exports.path=""; // running locally, serving from root
+	      }
+
 		exports.touchMarginOfError = 3; //px, used for "selecting" items on the score
 		exports.minSndDuration=60; // must be longer than frame duration so start and stop and not sent to the synthesizer at the same time. 
 		
